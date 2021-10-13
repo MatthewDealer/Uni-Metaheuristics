@@ -24,4 +24,5 @@ int main(int, char**) {
     prob->printDistanceMatrix();
     
     delete prob; 
+    return 0;
 }
