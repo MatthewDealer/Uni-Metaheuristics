@@ -112,7 +112,7 @@ cVRP* Loader::loadProblem(){
 
     MyReadFile.close();
     //Show read values
-    
+    /*
     std::cout << "___________________________________\n";
     std::cout << "READ VALUES:\n";
     std:: cout << "Dimiension: " << dimension << "\n";
@@ -126,7 +126,7 @@ cVRP* Loader::loadProblem(){
         std::cout << "\t" << i << ": " << demands[i] << "\n";
     }
     std::cout << "___________________________________\n";
-    
+    */
     
     //Create problem instance
     cVRP* ptr =  new cVRP(capacity, dimension);

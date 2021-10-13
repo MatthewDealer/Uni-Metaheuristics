@@ -1,14 +1,16 @@
 #include <iostream>
+#include <vector>
 #include "include/loader.hpp"
 #include "include/problem.hpp"
-
+#include "include/solution.hpp"
+#include "include/solver.hpp"
 
 int main(int, char**) {
-    std::string file_name = "D:/Dev/Metaheuristic/problem instances/test-file.vrp";
+
+    //Path to file
+    std::string file_name = "D:/Dev/Uni-Metaheuristics/problem instances/test-file.vrp";
     //std::string file_name = "D:/Dev/Metaheuristic/problem instances/A-n32-k5.vrp";
-    //Loader loader("D:/Dev/Metaheuristic/test.txt");
-    //Loader loader("D:/Dev/Metaheuristic/problem instances/test-file.vrp");
-    //loader.printInfo();
+    
     
     cVRP* prob;
 
@@ -20,8 +22,19 @@ int main(int, char**) {
     std::cout << "Vehicle capacity: " << prob->getVehicleCapacity() << "\n";
     std::cout << "Dimension: " << prob->getDimension() << "\n";
 
-    std::cout << "Distance check: \n";
-    prob->printDistanceMatrix();
+    //std::cout << "Distance check: \n";
+    //prob->printDistanceMatrix();
     
-    delete prob; 
+    std::cout << "Solution Test\n";
+    Solver solver;
+    Solution* sol_one = solver.generateRandomSolution(prob);
+    sol_one->printPaths();
+        
+    float result = prob->evalutateSolution(sol_one);
+    std::cout << "Score: " << result << "\n";
+    
+    //Clean up memory and close program
+    delete prob;
+    delete sol_one;
+    return 0;
 }

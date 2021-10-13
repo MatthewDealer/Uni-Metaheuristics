@@ -6,9 +6,11 @@ cVRP::cVRP(int capacity,int dimension){
     this->vehicle_capacity = capacity;
     this->dimension = dimension;
    
-    distance_matrix = new int*[dimension];
+    distance_matrix = new float*[dimension];
     for(int i = 0; i < dimension; i++){
-        distance_matrix[i] = new int[dimension];
+        distance_matrix[i] = new float[dimension];
+        for(int j = 0; j < dimension; j ++)
+            distance_matrix[i][j] = 0;
     }
 
     coordinates = new std::pair<int, int>[dimension];
@@ -58,6 +60,7 @@ void cVRP::setCoordinates(std::vector<std::pair<int,int>> coords){
         std::cout << "Wrong size of vector!\n";
 }
 
+//Set demands of magazines from vector
 void cVRP::setDemands(std::vector<int> new_demands){
     if(dimension == new_demands.size()){
         for(int i = 0; i < dimension; i++){
@@ -67,6 +70,11 @@ void cVRP::setDemands(std::vector<int> new_demands){
     }
     else
         std::cout << "Wrong size!\n";
+}
+
+//Return demand of magzine
+int cVRP::getDemands(int index){
+    return this->demands[index];
 }
 
 //Fill the distance matrix with distance between two magazines
@@ -94,6 +102,24 @@ void cVRP::printDistanceMatrix(){
 
 
 //Return calculated distance between two magazines
-int cVRP::getDistance(int from, int to){
+float cVRP::getDistance(int from, int to){
     return this->distance_matrix[from][to];
+}
+
+//Evaluate given solution //fix broken ones!?
+float cVRP::evalutateSolution(Solution* solution){
+    //For each path calculate the sum of distances
+    float sum = 0;
+    for(int i = 0; i < solution->getPathsCount(); i++){
+        std::vector<int> path = solution->getPath(i);
+        int start_point = 0; // 0 is a index of magazine
+        for(int j = 0; j < path.size(); j++){
+            int end_point = path[j];
+            sum += this-> getDistance(start_point, end_point);
+            start_point = end_point;
+        }
+        sum += this -> getDistance(start_point, 0);
+        start_point = 0;
+    }
+    return sum;
 }
