@@ -3,13 +3,14 @@
 #include <utility> 
 #include <vector>
 #include <math.h>
+#include "solution.hpp"
 
 class cVRP{
     private:
         int dimension;
         int vehicle_capacity;
         int* demands;
-        int** distance_matrix;
+        float** distance_matrix;
         std::pair<int, int>* coordinates;
         
         
@@ -27,11 +28,14 @@ class cVRP{
         
         void setCoordinates(std::vector<std::pair<int,int>> cords);
         void setDemands(std::vector<int> demands);
+        int getDemands(int index);
 
         void calculateDitanceMatrix();
         void printDistanceMatrix();
-        int getDistance(int, int);  
+        float getDistance(int, int);  
         
+        //Count only once, remember the evaluation
+        float evalutateSolution(Solution* soution);
 
 
 };
