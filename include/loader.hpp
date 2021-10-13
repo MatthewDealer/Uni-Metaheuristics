@@ -1,8 +1,9 @@
-#ifndef Loader_H
-#define Loader_H
-
+#pragma once
 #include <fstream>
 #include <iostream>
+#include <boost/algorithm/string.hpp>
+#include <vector>
+#include "problem.hpp"
 
 class Loader{
     private:
@@ -12,6 +13,7 @@ class Loader{
         Loader(std::string name) : file_name (name) {};
         void printInfo();
         void readFile();
+        cVRP* loadProblem();
+        
 };
 
-#endif
