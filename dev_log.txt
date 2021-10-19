@@ -5,7 +5,18 @@ https://developers.google.com/optimization/routing/cvrp
 
 
 Zajecia pierwsze:
-    - Loader
-    - Funkcja oceny
-    - Algorytm random
-    - Algorytm zachłanny
+    -Zapoznanie się z problemem. ✓
+    -Implementacja loadera. ✓
+    -Implementacja losowego osobnika cVRP. ✓
+    -Implementacja funkcji oceny ✓
+    -Implementacja algorytmu zachłannego ✓
+
+Zajęcia drugie:
+    -Implementacja operatorów mutacji i krzyżowania.
+    -Implementacja selekcji i zarządzania populacją w algorytmie ewolucyjnym.
+    -Implementacja narzędzi logowania → wykresy.
+    -Wstępne strojenie algorytmu ewolucyjnego.
+
+Badania:
+    -Badanie wpływu wartości parametrów na skuteczność/efektywność algorytmu genetycznego.
+    -Przygotowanie sprawozdania: tabelki, wykresy, wnioski.

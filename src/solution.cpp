@@ -1,22 +1,31 @@
 #include "../include/solution.hpp"
 
-int Solution::getPathsCount(){
-    return this->paths.size();
+Solution::Solution(int dimension){
+    path = new int[dimension-1];
 }
 
-std::vector<int> Solution::getPath(int index){
-    return this->paths[index];
+Solution::~Solution(){
+    delete[] path;
 }
 
-void Solution::printPaths(){
+int Solution::getPathSize(){
+    return this->size;
+}
+
+void Solution::printPath(){
     std::cout << "Solution:\n";
-       for(int i = 0; i < paths.size(); i++){
-        for(int j = 0; j < paths[i].size(); j++)
-            std::cout << paths[i][j];
+       for(int i = 0; i < size; i++){
+            std::cout << path[i];
+            if(i < size -1 )
+            std::cout << "-";
+        }
         std::cout << "\n";
-    }
 }
 
-void Solution::addPath(std::vector<int> new_path){
-    paths.push_back(new_path);
+int Solution::getValueAt(int index){
+    return path[index];
+}
+
+void Solution::setValueAt(int index, int value){
+    path[index] = value;
 }

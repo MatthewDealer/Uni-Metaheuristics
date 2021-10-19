@@ -18,7 +18,6 @@ cVRP::cVRP(int capacity,int dimension){
     
 }
 
-
 //Destructor, must remember to clean up the memory!
 cVRP::~cVRP(){
 
@@ -30,7 +29,6 @@ cVRP::~cVRP(){
     delete coordinates;
     delete demands;
 }
-
 
 int cVRP::getDimension(){
     return this->dimension;
@@ -100,7 +98,6 @@ void cVRP::printDistanceMatrix(){
     }
 }
 
-
 //Return calculated distance between two magazines
 float cVRP::getDistance(int from, int to){
     return this->distance_matrix[from][to];
@@ -109,17 +106,21 @@ float cVRP::getDistance(int from, int to){
 //Evaluate given solution //fix broken ones!?
 float cVRP::evalutateSolution(Solution* solution){
     //For each path calculate the sum of distances
+    // Check if vehicle isnt overload
     float sum = 0;
-    for(int i = 0; i < solution->getPathsCount(); i++){
-        std::vector<int> path = solution->getPath(i);
-        int start_point = 0; // 0 is a index of magazine
-        for(int j = 0; j < path.size(); j++){
-            int end_point = path[j];
-            sum += this-> getDistance(start_point, end_point);
-            start_point = end_point;
+    int start_point = 0; // 0 is an index of magazine
+    int current_capacity = 0;
+    for(int i = 0; i < solution->getPathSize(); i++){
+        int end_point = solution->getValueAt(i);
+        int demand = this->getDemands(end_point);
+        if(current_capacity + demand > vehicle_capacity){
+            end_point = 0;
+            i--;
         }
-        sum += this -> getDistance(start_point, 0);
-        start_point = 0;
+        sum += this-> getDistance(start_point, end_point);
+        start_point = end_point;
     }
+    sum += this -> getDistance(start_point, 0);
+    start_point = 0;
     return sum;
 }

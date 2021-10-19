@@ -1,19 +1,20 @@
 #pragma once
 #include <iostream>
-#include <vector>
+
 
 class Solution{
-    //reprezentacja problemu jako:
-    //Sciezka 1: numer magazynu, numer magazynu
-    //Sciezka 2: nr mag, nr mag, nr mag
+    //reprezentacja problemu jako: TSP
     private:
-        std::vector<std::vector<int>> paths;
+        int size;
+        int* path;
 
     public:
-        int getPathsCount();
-        std::vector<int> getPath(int index);
-        void printPaths();
-        void addPath(std::vector<int>);
-
+        Solution(int dimension);
+        ~Solution();
+        int getPathSize();
+        void printPath();
+        int getValueAt(int index);
+        void setValueAt(int index, int value);
+        
 };
 
