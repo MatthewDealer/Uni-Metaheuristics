@@ -3,6 +3,7 @@
 #include "solution.hpp"
 #include <iostream>
 #include <vector>
+#include <set>
 #include <stdlib.h>
 #include <time.h>  
 
@@ -12,19 +13,40 @@ class Solver{
     public:
         Solver(cVRP* problem);
         ~Solver();
-        Solution* generateRandomSolution(cVRP* problem);
-        Solution* generateGreedySolution(cVRP* problem);
+        Solution* generateRandomSolution();
+        Solution* generateGreedySolution();
 
 };
 
-class Evolution : Solver{
+class Evolution : public Solver{
     private:
+
+        float crossing_probablity;
+        float mutation_probablity;  
+
+        int tournament_size;
+        
         int population_size;
         int max_generation;
-        Solution* population;
+        Solution** population;
+        float* evaluation;
     public:
-        void initialize();
         
+        Evolution(cVRP* problem, int pop_size, float cross, float mutate);
+        ~Evolution();
+        
+        int getPopulationSize();
+        void setTournamentSize(int size);
+
+        //Main function
+        void evolution(int generation_limit);
+        Solution* getBest();
+
+        //population control functions
+        void initialize();
+        void evaluate();
+        Solution* clone(Solution* object);
+
         //Crossing functions
         Solution* crossover(Solution* parent_one, Solution* parent_two);
         Solution* orderedCrossover(Solution* parent_one, Solution* parent_two);
@@ -34,6 +56,15 @@ class Evolution : Solver{
         void mutation(Solution* object);
         void swapMutation(Solution* object);
         void invertMutation(Solution* object);
+
+        //Selection functions
+        int select();
+        int tournament(int size);
+        int roulette();
+
+        //help functions
+        void printSolution(int index);
+        void printSolution(Solution* obj);
 };
 
 

@@ -103,20 +103,27 @@ float cVRP::getDistance(int from, int to){
     return this->distance_matrix[from][to];
 }
 
-//Evaluate given solution //fix broken ones!?
+//Evaluate given solution
 float cVRP::evalutateSolution(Solution* solution){
     //For each path calculate the sum of distances
     // Check if vehicle isnt overload
     float sum = 0;
     int start_point = 0; // 0 is an index of magazine
     int current_capacity = 0;
+
+
     for(int i = 0; i < solution->getPathSize(); i++){
+
         int end_point = solution->getValueAt(i);
         int demand = this->getDemands(end_point);
+        
         if(current_capacity + demand > vehicle_capacity){
             end_point = 0;
+            current_capacity = -demand;
             i--;
         }
+        current_capacity += demand;
+        
         sum += this-> getDistance(start_point, end_point);
         start_point = end_point;
     }

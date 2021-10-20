@@ -12,11 +12,11 @@ Zajecia pierwsze:
     -Implementacja algorytmu zachłannego ✓
 
 Zajęcia drugie:
-    -Implementacja operatorów mutacji i krzyżowania.
-    -Implementacja selekcji i zarządzania populacją w algorytmie ewolucyjnym.
-    -Implementacja narzędzi logowania → wykresy.
-    -Wstępne strojenie algorytmu ewolucyjnego.
+    -Implementacja operatorów mutacji i krzyżowania. ✓
+    -Implementacja selekcji i zarządzania populacją w algorytmie ewolucyjnym ✓
+    -Implementacja narzędzi logowania → wykresy. 
+    -Wstępne strojenie algorytmu ewolucyjnego. - eh tam
 
 Badania:
-    -Badanie wpływu wartości parametrów na skuteczność/efektywność algorytmu genetycznego.
-    -Przygotowanie sprawozdania: tabelki, wykresy, wnioski.
+    -Badanie wpływu wartości parametrów na skuteczność/efektywność algorytmu genetycznego. - trzeba bedzie jutro zrobic
+    -Przygotowanie sprawozdania: tabelki, wykresy, wnioski. - dejm

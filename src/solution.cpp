@@ -1,7 +1,10 @@
 #include "../include/solution.hpp"
 
 Solution::Solution(int dimension){
-    path = new int[dimension-1];
+    size = dimension - 1;
+    path = new int[size];
+    for(int i = 0; i < size; i++)
+        path[i] = -1;
 }
 
 Solution::~Solution(){
@@ -19,7 +22,7 @@ void Solution::printPath(){
             if(i < size -1 )
             std::cout << "-";
         }
-        std::cout << "\n";
+    std::cout << "\n";
 }
 
 int Solution::getValueAt(int index){

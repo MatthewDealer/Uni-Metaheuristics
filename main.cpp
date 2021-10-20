@@ -14,50 +14,71 @@ int main(int, char**) {
     
     
     cVRP* prob;
-
     Loader load_one(file_name);
-
     prob = load_one.loadProblem();
 
     
     std::cout << "Vehicle capacity: " << prob->getVehicleCapacity() << "\n";
     std::cout << "Dimension: " << prob->getDimension() << "\n";
-
+    std::cout << "______________________________________________________\n";
     //std::cout << "Distance check: \n";
     //prob->printDistanceMatrix();
+
     
-    //std::cout << "Solution Test\n";
-    //Solver solver(prob);
-    /*    
-    Solution* sol_one = solver.generateRandomSolution(prob);
-    sol_one->printPaths();
+    Evolution solver(prob, 100, 0.2, 0.2);
+    solver.setTournamentSize(5);
+    std::cout << "Size: " << solver.getPopulationSize() << "\n";
+
+    /*
+    Solution* sol_one = solver.generateRandomSolution();
+    Solution* sol_two = solver.generateRandomSolution();
+    Solution* child = solver.pmCrossover(sol_one, sol_two);
+
+    sol_one->printPath();
+    sol_two->printPath();
+    child->printPath();
+    */
+
+    
+    //Evolution Test
+    solver.evolution(20);
+    
+    std::cout << "Done\n";
+    std::cout << "Best path:\n";
+    Solution* best = solver.getBest();
+    solver.printSolution(best);
+    std::cout << "Score: " << prob->evalutateSolution(best) << "\n";
+    
+    /*
+    //Solution Test
+    Solution* sol_one = solver.generateRandomSolution();
+
+    sol_one->printPath();
     float result = prob->evalutateSolution(sol_one);
     std::cout << "Score: " << result << "\n";
-    
     // ValueAt Test
     std::cout << sol_one->getValueAt(4) << "\n";
     sol_one->setValueAt(4, 9); 
     std::cout << sol_one->getValueAt(4) << "\n";
-    sol_one->printPaths();
+    sol_one->printPath();
     */
-    //Fix solution test
     /*
-    Solution* sol_one = new Solution(prob->getDimension());
-    std::vector<int> path;
-    path.push_back(1);
-    path.push_back(2);
-    path.push_back(3);
-    path.push_back(4);
-    path.push_back(5);
-
-    sol_one->addPath(path);
-    sol_one->printPaths();
-
-    solver.fixSolution(sol_one);
-    sol_one->printPaths();
+    //Crosover Test
+    Solution* sol_two = solver.generateRandomSolution(prob);
+    sol_one->printPath();
+    sol_two->printPath();
+    std::cout << "__Crossover__\n";
+    Solution* child = solver.crossover(sol_one, sol_two);
+    child->printPath();
     */
+    //Selection test
+    //solver.tournament(10);
+
+    //_________________________________________________________________________________________________
     //Clean up memory and close program
     delete prob;
+
     //delete sol_one;
+    //delete sol_two;
     return 0;
 }
