@@ -77,6 +77,143 @@ Solution* Solver::generateGreedySolution(){
     return solution_ptr;
 }
 
+//Random algorithm
+Random::Random(cVRP* problem, int count) : Solver(problem){
+    solution_count =  count;
+    scores = new float[solution_count];
+}
+
+Random::~Random(){
+    for(int i = 0; i < solution_count; i++)
+        if(solutions[i]!=nullptr){
+            delete solutions[i];
+        }
+
+    delete[] solutions;
+    delete[] scores;
+}
+
+void Random::genarateSolutions(){
+    for(int i = 0; i < solution_count; i++){
+        solutions[i] = generateRandomSolution();
+        scores[i] = problem->evalutateSolution(solutions[i]);
+    }
+}
+float Random::getBestScore(){
+    float best_score = -1;
+    for(int i = 0; i < solution_count; i++){
+        if(best_score == -1 || best_score > scores[i]){
+            best_score = scores[i];
+        }
+    }
+    return best_score;
+}
+float Random::getAvgScore(){
+    float sum;
+    for(int i = 0; i < solution_count; i++){
+        sum += scores[i];
+        
+    }
+    sum = sum / solution_count;
+    return sum;
+}
+float Random::getWorstScore(){
+    float worst_score = -1;
+    for(int i = 0; i < solution_count; i++){
+        if(worst_score == -1 || worst_score  < scores[i]){
+            worst_score = scores[i];
+        }
+    }
+    return worst_score;
+}
+
+//Greedy algorithm
+Greedy::Greedy(cVRP* problem): Solver(problem){
+    solution_count = problem->getDimension() - 1;
+}
+
+Greedy::~Greedy(){
+    for( int i = 0; i < solution_count; i++){
+        delete solutions[i];
+    }
+    delete[] solutions; 
+}
+
+Solution* Greedy::generateGreedySolution(int first){
+    
+
+    int dimension = problem->getDimension();
+    int max_capacity = problem-> getVehicleCapacity();
+    Solution* solution_ptr = new Solution(dimension);
+    std::vector<int> magazines;
+
+    for(int i = 0; i < dimension-1; i++){
+        magazines.push_back(i+1);
+    }
+
+    
+    int start_point = magazines[first];
+
+    for(int i = 0; i < dimension -1; i++){
+        int best_option = -1;
+        int best_distance = -1;
+
+        // Get the shortes route
+        for (int i = 0; i < magazines.size(); i++){
+            int distance = problem->getDistance(start_point, magazines[i]);
+            if(best_option == -1 || best_distance > distance){
+                best_option = i;
+                best_distance = distance; 
+            }
+        }
+
+        solution_ptr->setValueAt(i, magazines[best_option]);
+        start_point = magazines[best_option];
+        magazines.erase(magazines.begin() + best_option);
+    }
+
+    std::cout << "Paths created.\n";   
+    return solution_ptr;
+}
+
+void Greedy::generateSolutions(){
+    for (int i = 0; i < solution_count; i++){
+        solutions[i] = generateGreedySolution(i);
+    }
+}
+
+float Greedy::getBestScore(){
+    float best_score = -1;
+    for(int i = 0; i < solution_count; i++){
+        float score = problem->evalutateSolution(solutions[i]);
+        if(best_score == -1 || best_score > score){
+            best_score = score;
+        }
+    }
+    return best_score;
+}
+float Greedy::getAvgScore(){
+    float sum;
+    for(int i = 0; i < solution_count; i++){
+        float score = problem->evalutateSolution(solutions[i]);
+        sum += score;
+        
+    }
+    sum = sum / solution_count;
+    return sum;
+}
+float Greedy::getWorstScore(){
+    float worst_score = -1;
+    for(int i = 0; i < solution_count; i++){
+        float score = problem->evalutateSolution(solutions[i]);
+        if(worst_score == -1 || worst_score  < score){
+            worst_score = score;
+        }
+    }
+    return worst_score;
+}
+
+
 //Evolutionary algorithm
 Evolution::Evolution(cVRP* problem, int population_size, float cross, float mutate): Solver(problem){
     this->population_size = population_size;
@@ -110,7 +247,7 @@ void Evolution::initialize(){
         population[i] = generateRandomSolution();
         evaluation[i] = -1;
     }
-
+    evaluate();
 }
 
 void Evolution::evaluate(){
@@ -131,17 +268,19 @@ Solution* Evolution::clone(Solution* object){
 void Evolution::evolution(int generation_limit){
     int iteration = 0;
     while(iteration < generation_limit){
-        std::cout << "Generation no. " << iteration + 1 << "\n";
+        //std::cout << "Generation no. " << iteration + 1 << "\n";
         Solution** new_pop = new Solution*[population_size];  
         for(int i = 0; i < population_size; i++){
             Solution* child;
             int index_one = select();
+            //std::cout << "index one = " << index_one << "\n";
             int index_two = -1;
             Solution* parent_one = population[index_one];
-            float cross = rand();
-            float mutate = rand();
+            float cross = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            float mutate = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             
-            if (cross < crossing_probablity){
+            if (cross <= crossing_probablity){
+                //std::cout << "CROSS!\n";
                 index_two = select();
                 Solution* parent_two = population[index_two];
                 child = crossover(parent_one, parent_two);
@@ -149,20 +288,23 @@ void Evolution::evolution(int generation_limit){
             }
             else {
                 child = clone(parent_one);
+
             }
 
-            if( mutate < mutation_probablity){
+            if( mutate <= mutation_probablity){
                 mutation(child);
             }
             new_pop[i] = child;
+            child = nullptr;
         }
         
         
         //clean memory and old population
-        for( int i = 0; i <population_size; i++){
+        for( int i = 0; i < population_size; i++){
             delete population[i];
             
             population[i] = new_pop[i];
+            new_pop[i] = nullptr;
         }
         
         delete[] new_pop;
@@ -190,6 +332,7 @@ Solution* Evolution::getBest(){
 // Crossing
 Solution* Evolution::crossover(Solution* parent_one, Solution* parent_two){
     return orderedCrossover(parent_one, parent_two);
+    //return pmCrossover(parent_one, parent_two);
 }
 
 Solution* Evolution::orderedCrossover(Solution* parent_one, Solution* parent_two){
@@ -245,7 +388,7 @@ Solution* Evolution::pmCrossover(Solution* parent_one, Solution* parent_two){
         start_point = temp;
     }
 
-    std::cout << "start: " << start_point <<", end : " << end_point << "\n";
+    //std::cout << "start: " << start_point <<", end : " << end_point << "\n";
 
     for(int i = 0; i < size; i++){
         child->setValueAt(i, parent_one->getValueAt(i));
@@ -318,6 +461,7 @@ void Evolution::invertMutation(Solution* object){
 int Evolution::select(){
     return tournament(tournament_size);
     //return roulette();
+    
 }
 
 int Evolution::tournament(int size){
@@ -331,9 +475,10 @@ int Evolution::tournament(int size){
     int winner_index = -1;
     float best_score = -1;
     for (auto it = numbers.begin(); it != numbers.end(); ++it){
-        float score = evaluation[*it];
+        int index = *it;
+        float score = evaluation[index];
         if(winner_index == -1 || best_score > score){
-            winner_index = *it;
+            winner_index = index;
             best_score = score;
         }
     }
@@ -416,4 +561,40 @@ void Evolution::printSolution(Solution* obj){
         
     }
     std::cout << "\n";
+}
+
+void Evolution::printPop(){
+    for(int i = 0; i < population_size; i++){
+        std::cout << "score:" << evaluation[i] << "\n";
+    }
+}
+
+//Logger functions
+
+float Evolution::getBestScore(){
+    float best_score = -1;
+    for(int i = 0; i < population_size; i++){
+        if(best_score == -1 || best_score > evaluation[i]){
+            best_score = evaluation[i];
+        }
+    }
+    return best_score;
+}
+float Evolution::getAvgScore(){
+    float sum = 0;
+    for(int i = 0; i < population_size; i++){
+        sum += evaluation[i];
+        
+    }
+    sum = sum / population_size;
+    return sum;
+}
+float Evolution::getWorstScore(){
+    float worst_score = -1;
+    for(int i = 0; i < population_size; i++){
+        if(worst_score == -1 || worst_score  < evaluation[i]){
+            worst_score = evaluation[i];
+        }
+    }
+    return worst_score;
 }

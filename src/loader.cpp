@@ -88,8 +88,8 @@ cVRP* Loader::loadProblem(){
             for(int i = 0; i < dimension; i++){
                 if(std::getline (MyReadFile, line)){
                     boost::split(words, line, boost::is_any_of("\t "));
-                    int x = std::stoi(words[1]);
-                    int y = std::stoi(words[2]);
+                    int x = std::stoi(words[2]);
+                    int y = std::stoi(words[3]);
                     //std::cout << "x: " << x << ", y: " << y << "\n";
                     coords.push_back(std::pair<int,int>(x,y));
                 }

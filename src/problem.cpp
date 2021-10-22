@@ -82,20 +82,27 @@ void cVRP::calculateDitanceMatrix(){
     for(int i = 0; i < dimension; i++){
         for(int j = 0; j < dimension; j++){
             //Calculate distance with Euclidean equation 
-            distance_matrix[i][j] = sqrt(pow(coordinates[i].first - coordinates[j].first,2) 
-                    + pow(coordinates[i].second-coordinates[j].second,2));
+            distance_matrix[i][j] = sqrt(pow((coordinates[i].first - coordinates[j].first),2) 
+                    + pow((coordinates[i].second-coordinates[j].second),2));
         }
     }
 }
 
 //Print distance matrix
 void cVRP::printDistanceMatrix(){
+    //std::ofstream file;
+    //std::string path ="matrix.csv";
+    //file.open(path);
     for(int i = 0; i < dimension; i++){
         for(int j = 0; j < dimension; j++){
-            std::cout << this->distance_matrix[i][j] << " ";
+            //file << (int)this->distance_matrix[i][j] << ",";
+            std::cout << (int)this->distance_matrix[i][j] << ",";
         }
+        //file << ",\n";
         std::cout << "\n";
+
     }
+    //file.close();
 }
 
 //Return calculated distance between two magazines
@@ -123,7 +130,6 @@ float cVRP::evalutateSolution(Solution* solution){
             i--;
         }
         current_capacity += demand;
-        
         sum += this-> getDistance(start_point, end_point);
         start_point = end_point;
     }

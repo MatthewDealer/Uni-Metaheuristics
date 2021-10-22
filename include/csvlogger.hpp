@@ -2,23 +2,18 @@
 #include <iostream>
 #include <fstream>
 
+#include "solver.hpp"
+//#include "problem.hpp"
+
 class Logger{
     private:
         std::string file_name;
         std::ofstream file;
-    public:
-        Logger(std::string path);
-        ~Logger();
-};
+        cVRP* problem;
 
-/*
-    std::ofstream myfile;
-      myfile.open ("example.csv");
-      myfile << "This is the first cell in the first column.\n";
-      myfile << "a,b,c,\n";
-      myfile << "c,s,v,\n";
-      myfile << "1,2,3.456\n";
-      myfile << "semi;colon";
-      myfile.close();
-      return 0;
-*/
+    public:
+        Logger(std::string path, cVRP* problem);
+        ~Logger();
+        void runTest(Evolution* evolution_solver, int generations_limit,int evolution_step);
+        void runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_size);
+};

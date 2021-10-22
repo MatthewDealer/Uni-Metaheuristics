@@ -15,7 +15,40 @@ class Solver{
         ~Solver();
         Solution* generateRandomSolution();
         Solution* generateGreedySolution();
+        float getBestScore();
+        float getAvgScore();
+        float getWorstScore();
 
+};
+
+class Random : public Solver{
+    private:
+        int solution_count;
+        Solution** solutions;
+        float* scores;
+    public:
+        Random(cVRP* problem, int count);
+        ~Random();
+        void genarateSolutions();
+        float getBestScore();
+        float getAvgScore();
+        float getWorstScore();
+        
+};
+
+class Greedy : public Solver{
+    private:
+        int solution_count;
+        Solution** solutions;
+    public:
+        Greedy(cVRP* problem);
+        ~Greedy();
+        Solution* generateGreedySolution(int first);
+        void generateSolutions();
+        Solution* getSolution(int index);
+        float getBestScore();
+        float getAvgScore();
+        float getWorstScore();
 };
 
 class Evolution : public Solver{
@@ -65,6 +98,12 @@ class Evolution : public Solver{
         //help functions
         void printSolution(int index);
         void printSolution(Solution* obj);
+        void printPop();
+
+
+        float getBestScore();
+        float getAvgScore();
+        float getWorstScore();
 };
 
 

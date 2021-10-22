@@ -20,3 +20,9 @@ Zajęcia drugie:
 Badania:
     -Badanie wpływu wartości parametrów na skuteczność/efektywność algorytmu genetycznego. - trzeba bedzie jutro zrobic
     -Przygotowanie sprawozdania: tabelki, wykresy, wnioski. - dejm
+
+
+
+    1 strona - opis 
+    2 strona - wykres poprawnie działającego wykresu jeden dobrze - drugi wykres dla turnieju dla 1 osobnika
+    3 strona - tabelki

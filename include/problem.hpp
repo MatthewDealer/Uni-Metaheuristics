@@ -4,6 +4,7 @@
 #include <vector>
 #include <math.h>
 #include "solution.hpp"
+#include <fstream>
 
 class cVRP{
     private:
