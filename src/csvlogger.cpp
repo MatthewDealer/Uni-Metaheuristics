@@ -39,19 +39,75 @@ void Logger::runTest(Evolution* evolution_solver, int generations_limit,int evol
     std::cout << "Done!\n";
 }
 
-void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_size){
-    /*
-    //Compare eloltuion, random and greedy
-    Evolution evolution_solver(problem, pop_size, 0.2, 0.2);
+//Compare evoltuion, random and greedy
+void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_size, int repeat_count){
+    
+    //Evolution scores
+    float best_evolution[repeat_count];
+    float avg_evolution[repeat_count];
+    float worst_evolution[repeat_count];
+
+    //Random scores
+    float best_random[repeat_count];
+    float avg_random[repeat_count];
+    float worst_random[repeat_count];
+
+    //Greedy scores
+    float best_greedy;
+    float avg_greedy;
+    float worst_greedy;
+
+    std::cout << "Running tests...\n";
+
+    //Run greedy test (will always give the same results)
     Greedy greedy_solver(problem);
-    Random random_solver(problem, pop_size*generations_limit);
+    greedy_solver.generateSolutions();
+    best_greedy = greedy_solver.getBestScore();
+    avg_greedy = greedy_solver.getAvgScore();
+    worst_greedy = greedy_solver.getWorstScore();
+
+    std::cout << "Greedy done.\n";
+    //Test algorithms
+    for(int i = 0; i < repeat_count; i++){
+        float best, avg, worst;
+        std::cout << "Iteration no. " << i +1 <<"\n";
+
+        //Evolution test
+        Evolution evolution_solver(problem, pop_size, cross_prob, mutate_prob);
+        evolution_solver.evolution(generations_limit);
+        best = evolution_solver.getBestScore();
+        avg = evolution_solver.getAvgScore();
+        worst = evolution_solver.getWorstScore();
+        best_evolution[i] = best;
+        avg_evolution[i] = avg;
+        worst_evolution[i] = worst;
+        std::cout << best << " - " << avg << " - " << worst <<"\n";
+            
+    
+        //Random test
+        Random random_solver(problem, (pop_size*generations_limit));
+        random_solver.genarateSolutions();
+        best = random_solver.getBestScore();
+        avg = random_solver.getAvgScore();
+        worst = random_solver.getWorstScore();
+        best_random[i] = best;
+        avg_random[i] = avg;
+        worst_random[i] = worst;
+        std::cout << best << " - " << avg << " - " << worst <<"\n";
+       
+
+
+    }
+    std::cout << "Evolution done.\n";
+    std::cout << "Random done.\n";
 
     //Log score to file
-    file << "This is the first cell in the first column.\n";
-    file << "a,b,c,\n";
-    file << "c,s,v,\n";
-    file << "1,2,3.456\n";
-    file << "semi;colon";
-    */
+    file << ",Evolution,,,Random,,,Greedy,,,\n";
+    file << "iteration,best,avg,worst,best,avg,worst,best,avg,worst,\n";
+    for(int i = 0; i < repeat_count; i++){
+    file << i+1 << "," << best_evolution[i] << "," << avg_evolution[i] << "," << worst_evolution[i] <<",";
+    file <<  best_random[i] << "," << avg_random[i] << "," << worst_random[i] <<",";
+    file <<  best_greedy << "," << avg_greedy << "," << worst_greedy <<",\n";
+    }
     std::cout << "Done!\n";
 }

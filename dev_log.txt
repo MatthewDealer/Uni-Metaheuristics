@@ -1,7 +1,5 @@
 Links:
 https://pl.wikipedia.org/wiki/Problem_komiwoja%C5%BCera
-https://developers.google.com/optimization/routing/tsp#c_2
-https://developers.google.com/optimization/routing/cvrp
 
 
 Zajecia pierwsze:
@@ -14,15 +12,16 @@ Zajecia pierwsze:
 Zajęcia drugie:
     -Implementacja operatorów mutacji i krzyżowania. ✓
     -Implementacja selekcji i zarządzania populacją w algorytmie ewolucyjnym ✓
-    -Implementacja narzędzi logowania → wykresy. 
-    -Wstępne strojenie algorytmu ewolucyjnego. - eh tam
+    -Implementacja narzędzi logowania → wykresy ✓
+    -Wstępne strojenie algorytmu ewolucyjnego. ✓
 
 Badania:
-    -Badanie wpływu wartości parametrów na skuteczność/efektywność algorytmu genetycznego. - trzeba bedzie jutro zrobic
+    -Badanie wpływu wartości parametrów na skuteczność/efektywność algorytmu genetycznego.
     -Przygotowanie sprawozdania: tabelki, wykresy, wnioski. - dejm
-
-
 
     1 strona - opis 
     2 strona - wykres poprawnie działającego wykresu jeden dobrze - drugi wykres dla turnieju dla 1 osobnika
     3 strona - tabelki
+
+Zajęcia trzecie:
+    - Implementacja Tabu search'a

@@ -73,13 +73,14 @@ Solution* Solver::generateGreedySolution(){
         magazines.erase(magazines.begin() + best_option);
     }
 
-    std::cout << "Paths created.\n";   
+    //std::cout << "Paths created.\n";   
     return solution_ptr;
 }
 
 //Random algorithm
 Random::Random(cVRP* problem, int count) : Solver(problem){
     solution_count =  count;
+    solutions = new Solution*[solution_count];
     scores = new float[solution_count];
 }
 
@@ -130,6 +131,9 @@ float Random::getWorstScore(){
 //Greedy algorithm
 Greedy::Greedy(cVRP* problem): Solver(problem){
     solution_count = problem->getDimension() - 1;
+    solutions = new Solution*[solution_count];
+
+    
 }
 
 Greedy::~Greedy(){
@@ -172,7 +176,7 @@ Solution* Greedy::generateGreedySolution(int first){
         magazines.erase(magazines.begin() + best_option);
     }
 
-    std::cout << "Paths created.\n";   
+    //std::cout << "Paths created.\n";   
     return solution_ptr;
 }
 

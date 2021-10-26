@@ -15,5 +15,5 @@ class Logger{
         Logger(std::string path, cVRP* problem);
         ~Logger();
         void runTest(Evolution* evolution_solver, int generations_limit,int evolution_step);
-        void runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_size);
+        void runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_sizem, int repeat_count);
 };

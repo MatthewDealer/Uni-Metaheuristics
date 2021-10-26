@@ -10,9 +10,9 @@ int main(int, char**) {
 
     //Path to file
     //std::string file_name = "D:/Dev/Uni-Metaheuristics/problem instances/test-file.vrp";
-    std::string file_name = "D:/Dev/Uni-Metaheuristics/problem instances/A-n32-k5.vrp";
+    //std::string file_name = "D:/Dev/Uni-Metaheuristics/problem instances/A-n32-k5.vrp";
     //std::string file_name = "D:/Dev/Metaheuristic/problem instances/test-file.vrp";
-    //std::string file_name = "D:/Dev/Metaheuristic/problem instances/A-n32-k5.vrp";
+    std::string file_name = "D:/Dev/Metaheuristic/problem instances/A-n32-k5.vrp";
     
     
     cVRP* prob;
@@ -27,29 +27,32 @@ int main(int, char**) {
 
     
     //Logger test
-    std::string output_file = "testEvo1.csv";
+    std::string output_file = "../datasheets/Evolution_T1.csv";
+    int repeat_count = 10;
     Logger log(output_file, prob);
-    int population_size = 1000;
-    int generation_limit = 100;
-    float cross_prob = 0.2;
+    int population_size = 5000;
+    int generation_limit = 500;
+    float cross_prob = 0.4;
     float mutate_prob = 0.6;
-    int tournament_size = 25;
-    int step_evolution = 1;
+    int tournament_size = 1;
+    int step_evolution = 10;
     Evolution evolution_solver(prob, population_size, cross_prob, mutate_prob); 
     evolution_solver.setTournamentSize(tournament_size);
+
+    //Evolution algorithm test
     log.runTest(&evolution_solver, generation_limit, step_evolution);
-    
-    
-    //std::cout << "Done\n";
     std::cout << "Best path:\n";
     Solution* best = evolution_solver.getBest();
     evolution_solver.printSolution(best);
     std::cout << "Score: " << prob->evalutateSolution(best) << "\n";
     std::cout << "________________________________________________\n";
-
-    //evolution_solver.printPop();
-    //prob->printDistanceMatrix();
     prob->evalutateSolution(best);
+
+    
+    //log.runCompareLog(population_size, generation_limit, cross_prob, mutate_prob, tournament_size, repeat_count);
+    
+    
+
     
     
     /*
