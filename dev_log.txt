@@ -24,4 +24,10 @@ Badania:
     3 strona - tabelki
 
 Zajęcia trzecie:
-    - Implementacja Tabu search'a
+    -Implementacja Tabu search'a
+    -Implementacja operatorów budowy sąsiedztwa.
+    -Implementacja selekcji i zarządzania listą tabu w TS.
+    -Implementacja narzędzi logowania → wykresy.
+    -Wstępne strojenie TS.
+    -Badanie wpływu wartości parametrów na skuteczność/efektywność TS.
+    -Przygotowanie sprawozdania: tabelki, wykresy, wnioski. 

@@ -217,8 +217,9 @@ float Greedy::getWorstScore(){
     return worst_score;
 }
 
-
-//Evolutionary algorithm
+//////////////////////////
+//Evolutionary algorithm//
+//////////////////////////
 Evolution::Evolution(cVRP* problem, int population_size, float cross, float mutate): Solver(problem){
     this->population_size = population_size;
     this->crossing_probablity = cross;
@@ -267,6 +268,7 @@ Solution* Evolution::clone(Solution* object){
     }
     return solution_ptr;
 }
+
 
 //Evolution
 void Evolution::evolution(int generation_limit){
@@ -574,7 +576,6 @@ void Evolution::printPop(){
 }
 
 //Logger functions
-
 float Evolution::getBestScore(){
     float best_score = -1;
     for(int i = 0; i < population_size; i++){
@@ -601,4 +602,200 @@ float Evolution::getWorstScore(){
         }
     }
     return worst_score;
+}
+
+///////////////
+//Tabu Search//
+///////////////
+TabuSearch::TabuSearch(cVRP* problem, int neighborhood_size, int tabu_size) : Solver(problem){
+    this->neighborhood_size = neighborhood_size;
+    this->tabu_size = tabu_size;
+}
+
+//Destructor
+TabuSearch::~TabuSearch(){
+    problem = nullptr;
+
+    //Clean memory for neighbors
+    for(int i = 0; i < neighborhood_size; i++){
+        delete neighbors[i];
+    }
+
+    //Clean memory form tabu
+    for(int i = 0; i < tabu.size(); i++){
+        delete tabu.front();
+        tabu.pop_front();
+    }
+
+    //clean rest of memory
+    delete[] neighbors;
+    delete[] evaluation;
+    delete current_solution;
+    delete best_solution;
+}
+
+//initialize Tabu Search
+void TabuSearch::initialize(){    
+    current_solution = generateRandomSolution();
+    best_solution = clone(current_solution);
+    current_evaluation = problem->evalutateSolution(current_solution);
+    neighbors = new Solution*[neighborhood_size];
+    evaluation = new float[neighborhood_size];
+
+    for(int i = 0; i < neighborhood_size; i++){
+        neighbors[i] == nullptr;
+    }
+
+    for(int i = 0; i < tabu_size; i++){
+        tabu[i] == nullptr;
+    }
+}
+
+//main function
+void TabuSearch::search(int iterations){
+    for(int i = 0; i < iterations; i++){
+        generateNeighbor(current_solution);
+        int best_neighbor_index = getBestOfNeighbors();
+        
+        //Move forward to next best place
+        current_solution = clone(neighbors[best_neighbor_index]);
+
+        //Check if best path is found
+        if(evaluation[best_neighbor_index] < best_evaluation){
+                best_solution = clone(neighbors[best_neighbor_index]);
+                best_evaluation = evaluation[best_neighbor_index];
+        }
+
+    }
+}
+
+int TabuSearch::getBestOfNeighbors(){
+    float best = -1;
+    int index = 0;
+    for(int i = 0; i < neighborhood_size; i++){
+        float best = evaluation[i];
+        if(best==-1 || best > evaluation[i]){
+            best = evaluation[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+//Output functions
+Solution* TabuSearch::getBest(){
+    return best_solution;
+}
+
+//Neighbors functions
+void TabuSearch::generateNeighbors(Solution* object){
+
+
+    //delete old neighborhood
+    for(int i = 0; i < neighborhood_size; i++){
+        if(neighbors[i]!=nullptr){
+            delete neighbors[i];
+            neighbors[i] = nullptr;
+        }
+        
+    }
+    
+    //Generate new neighbors
+    for(int i = 0; i < neighborhood_size; i++){
+        int is_unique_counter = 3;
+        Solution* new_sol;
+        bool is_unique = false;
+        while(!is_unique || is_unique_counter>0){
+            new_sol = generateNeighbor(object);    
+            is_unique = !isNeighbor(new_sol);
+            is_unique_counter--;
+        }
+        
+        //Dev msg
+        if(is_unique_counter == 0){
+            std::cout << "Unique counter is 0. Check if everything is all right.\n";
+        }
+        neighbors[i] = new_sol;
+    }
+
+    //Evaluate new neighbors
+    for(int i = 0; i < neighborhood_size; i++)
+        evaluation[i] = problem->evalutateSolution(neighbors[i]);
+
+
+}
+
+//Generates new solution based on new one.
+Solution* TabuSearch::generateNeighbor(Solution* object){
+    return swap(object);
+}
+
+//Generates new solution based on new one.
+Solution* TabuSearch::swap(Solution* object){
+
+    Solution* new_sol = clone(object);
+    int dimension = object->getPathSize();
+    int first_index = rand() % dimension;
+    int second_index = rand() % dimension;
+    
+    //Make sure that indexes arent equal
+    while(second_index == first_index)
+        second_index = rand() % dimension;
+
+    int fist_value = new_sol->getValueAt(first_index);
+    int second_value = new_sol->getValueAt(second_index);
+
+    new_sol->setValueAt(first_index, second_value);
+    new_sol->setValueAt(second_index, fist_value);
+
+    return new_sol;
+}
+
+Solution* TabuSearch::invert(Solution* object){
+    std::cout << "This function is not implemented yet.\n";
+    return nullptr;
+}
+
+//help functions
+//clone solution
+Solution* TabuSearch::clone(Solution* object){
+    Solution* solution_ptr = new Solution(problem->getDimension());
+    for(int i = 0 ; i < solution_ptr->getPathSize(); i++){
+        solution_ptr->setValueAt(i, object->getValueAt(i));
+    }
+    return solution_ptr;
+}
+
+bool TabuSearch::isEqual(Solution* obj1, Solution* obj2){
+    if(obj1->getPathSize() != obj2->getPathSize())
+        return false;
+
+    for(int i = 0; i < obj1->getPathSize(); i++){
+        if(obj1->getValueAt(i) != obj2->getValueAt(i))
+            return false;
+    }
+    return true;
+}
+
+//Check if object is in tabu list
+bool TabuSearch::isTabu(Solution* object){
+    for(int i = 0; i < tabu_size; i++){
+        if(tabu[i] == nullptr)
+            break;
+        if(isEqual(object, tabu[i]))
+            return true;
+    }
+    return false;
+}
+
+//Check if object is in neighbor list
+ bool TabuSearch::isNeighbor(Solution* object){
+    for(int i = 0; i < neighborhood_size; i++){
+        if(neighbors[i] == nullptr)
+            break;
+        if(isEqual(object, tabu[i]))
+            return true;
+        
+    }
+    return false;
 }

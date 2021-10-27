@@ -5,7 +5,8 @@
 #include <vector>
 #include <set>
 #include <stdlib.h>
-#include <time.h>  
+#include <time.h>
+#include <deque>
 
 class Solver{   
     protected:
@@ -53,7 +54,6 @@ class Greedy : public Solver{
 
 class Evolution : public Solver{
     private:
-
         float crossing_probablity;
         float mutation_probablity;  
 
@@ -107,3 +107,40 @@ class Evolution : public Solver{
 };
 
 
+class TabuSearch : public Solver{
+    private:
+        int neighborhood_size;
+        int tabu_size;
+
+        Solution* current_solution;
+        Solution* best_solution;
+        Solution** neighbors;
+        std::deque<Solution*> tabu;
+        float current_evaluation;
+        float best_evaluation;
+        float* evaluation;
+    
+    public:
+        TabuSearch(cVRP* problem, int n_size, int t_size);
+        ~TabuSearch();
+        void initialize();
+
+        //main function
+        void search(int iterations);
+        int getBestOfNeighbors();
+
+        //Output functions
+        Solution* getBest();
+
+        //Neighbors functions
+        void generateNeighbors(Solution* object);
+        Solution* generateNeighbor(Solution* object);
+        Solution* swap(Solution* object);
+        Solution* invert(Solution* object);
+
+        //help functions
+        Solution* clone(Solution* object);
+        bool isEqual(Solution* obj1, Solution* obj2);
+        bool isTabu(Solution* object);
+        bool isNeighbor(Solution* object);
+};

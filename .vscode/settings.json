@@ -74,7 +74,8 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "queue": "cpp"
     },
     "cmake.configureOnOpen": true
 }
