@@ -2,3 +2,5 @@
 build/
 #excel files
 datasheets/
+#ignore csv files
+*.cvs
