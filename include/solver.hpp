@@ -131,6 +131,8 @@ class TabuSearch : public Solver{
 
         //Output functions
         Solution* getBest();
+        float getBestEvaluation();
+        void printTabu();
 
         //Neighbors functions
         void generateNeighbors(Solution* object);
@@ -143,4 +145,8 @@ class TabuSearch : public Solver{
         bool isEqual(Solution* obj1, Solution* obj2);
         bool isTabu(Solution* object);
         bool isNeighbor(Solution* object);
+
+        float getBestScore();
+        float getAvgScore();
+        float getWorstScore();
 };

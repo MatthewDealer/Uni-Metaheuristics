@@ -610,6 +610,7 @@ float Evolution::getWorstScore(){
 TabuSearch::TabuSearch(cVRP* problem, int neighborhood_size, int tabu_size) : Solver(problem){
     this->neighborhood_size = neighborhood_size;
     this->tabu_size = tabu_size;
+    initialize();
 }
 
 //Destructor
@@ -641,30 +642,38 @@ void TabuSearch::initialize(){
     current_evaluation = problem->evalutateSolution(current_solution);
     neighbors = new Solution*[neighborhood_size];
     evaluation = new float[neighborhood_size];
+    best_evaluation = current_evaluation;
 
     for(int i = 0; i < neighborhood_size; i++){
-        neighbors[i] == nullptr;
+        neighbors[i] = nullptr;
     }
 
     for(int i = 0; i < tabu_size; i++){
-        tabu[i] == nullptr;
+        tabu.push_back(nullptr);
     }
 }
 
 //main function
 void TabuSearch::search(int iterations){
     for(int i = 0; i < iterations; i++){
-        generateNeighbor(current_solution);
+        generateNeighbors(current_solution);
         int best_neighbor_index = getBestOfNeighbors();
-        
-        //Move forward to next best place
+
+        //Move forward to next best place //najlepszy, uwzględniając listę Tabu
+        delete current_solution;
         current_solution = clone(neighbors[best_neighbor_index]);
 
         //Check if best path is found
         if(evaluation[best_neighbor_index] < best_evaluation){
+                delete best_solution;
                 best_solution = clone(neighbors[best_neighbor_index]);
                 best_evaluation = evaluation[best_neighbor_index];
         }
+
+        //update Tabu
+        if(tabu.size()>=tabu_size)
+            tabu.pop_front();
+        tabu.push_back(clone(current_solution));
 
     }
 }
@@ -673,10 +682,12 @@ int TabuSearch::getBestOfNeighbors(){
     float best = -1;
     int index = 0;
     for(int i = 0; i < neighborhood_size; i++){
-        float best = evaluation[i];
-        if(best==-1 || best > evaluation[i]){
-            best = evaluation[i];
-            index = i;
+        if(!isTabu(neighbors[i])){
+            float score = evaluation[i];
+            if(best==-1 || best > score){
+                best = evaluation[i];
+                index = i;
+            }
         }
     }
     return index;
@@ -687,42 +698,72 @@ Solution* TabuSearch::getBest(){
     return best_solution;
 }
 
+ float TabuSearch::getBestEvaluation(){
+     return best_evaluation;
+ }
+
+void TabuSearch::printTabu(){
+    for(int i=0; i < tabu.size(); i++)
+        tabu[i]->printPath();
+}
+
 //Neighbors functions
 void TabuSearch::generateNeighbors(Solution* object){
 
-
     //delete old neighborhood
-    for(int i = 0; i < neighborhood_size; i++){
-        if(neighbors[i]!=nullptr){
+    for(int i = 0; i < neighborhood_size; i++){        
+        if(neighbors[i] == nullptr)
+            break;
+
+        else{
             delete neighbors[i];
             neighbors[i] = nullptr;
         }
-        
     }
+
     
     //Generate new neighbors
     for(int i = 0; i < neighborhood_size; i++){
-        int is_unique_counter = 3;
-        Solution* new_sol;
-        bool is_unique = false;
-        while(!is_unique || is_unique_counter>0){
-            new_sol = generateNeighbor(object);    
+        int is_unique_counter = 5;
+        Solution* new_sol = generateNeighbor(object);
+        bool is_unique = !isNeighbor(new_sol);
+        
+        while(is_unique == false){
+            if(new_sol != nullptr){
+                delete new_sol;
+                new_sol = nullptr;
+            }
+            new_sol = generateNeighbor(object);
             is_unique = !isNeighbor(new_sol);
             is_unique_counter--;
+            if(is_unique_counter==0)
+                break;
         }
         
         //Dev msg
+        /*
         if(is_unique_counter == 0){
             std::cout << "Unique counter is 0. Check if everything is all right.\n";
         }
+        */
+
         neighbors[i] = new_sol;
     }
 
-    //Evaluate new neighbors
+    /*
+    //Print new neighbors
     for(int i = 0; i < neighborhood_size; i++)
-        evaluation[i] = problem->evalutateSolution(neighbors[i]);
+        neighbors[i]->printPath();
+    */
 
+    //Evaluate new neighbors
+    for(int i = 0; i < neighborhood_size; i++){
+        float score = problem->evalutateSolution(neighbors[i]);
+        //std::cout << score << "\n";
+        evaluation[i] = score;
+    }
 
+    
 }
 
 //Generates new solution based on new one.
@@ -774,6 +815,7 @@ bool TabuSearch::isEqual(Solution* obj1, Solution* obj2){
         if(obj1->getValueAt(i) != obj2->getValueAt(i))
             return false;
     }
+
     return true;
 }
 
@@ -792,10 +834,41 @@ bool TabuSearch::isTabu(Solution* object){
  bool TabuSearch::isNeighbor(Solution* object){
     for(int i = 0; i < neighborhood_size; i++){
         if(neighbors[i] == nullptr)
-            break;
-        if(isEqual(object, tabu[i]))
+            return false;
+        if(isEqual(object, neighbors[i]))
             return true;
         
     }
     return false;
+}
+
+float TabuSearch::getBestScore(){
+    float best_score = -1;
+    for(int i = 0; i < neighborhood_size; i++){
+        float score = evaluation[i];
+        if(best_score == -1 || best_score > score){
+            best_score = score;
+        }
+    }
+    return best_score;
+
+}
+float TabuSearch::getAvgScore(){
+    float sum = 0;
+    for(int i = 0; i < neighborhood_size; i++){
+        sum += evaluation[i]; 
+    }
+    sum = sum / neighborhood_size;
+    return sum;
+
+}
+float TabuSearch::getWorstScore(){
+    float worst_score = -1;
+    for(int i = 0; i < neighborhood_size; i++){
+        float score = evaluation[i];
+        if(worst_score == -1 || worst_score  < score){
+            worst_score = score;
+        }
+    }
+    return worst_score;
 }

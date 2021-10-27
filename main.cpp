@@ -7,32 +7,6 @@
 #include "include/csvlogger.hpp"
 
 
-void exerciseOne(cVRP* prob){
-    //Logger test
-    std::string output_file = "../datasheets/Evolution_T1.csv";
-    int repeat_count = 10;
-    Logger log(output_file, prob);
-    int population_size = 5000;
-    int generation_limit = 500;
-    float cross_prob = 0.4;
-    float mutate_prob = 0.6;
-    int tournament_size = 10;
-    int step_evolution = 10;
-    Evolution evolution_solver(prob, population_size, cross_prob, mutate_prob); 
-    evolution_solver.setTournamentSize(tournament_size);
-
-    //Evolution algorithm test
-    log.runTest(&evolution_solver, generation_limit, step_evolution);
-    std::cout << "Best path:\n";
-    Solution* best = evolution_solver.getBest();
-    evolution_solver.printSolution(best);
-    std::cout << "Score: " << prob->evalutateSolution(best) << "\n";
-    std::cout << "________________________________________________\n";
-    prob->evalutateSolution(best);
-
-    //log.runCompareLog(population_size, generation_limit, cross_prob, mutate_prob, tournament_size, repeat_count);
-}
-
 void mutationTest(cVRP* prob){
     Evolution solver(prob, 100, 0.2, 0.2);
     solver.setTournamentSize(5);
@@ -61,6 +35,46 @@ void crossoverTest(cVRP* prob){
     delete sol_one;
     delete sol_two;
 }
+
+void exerciseOne(cVRP* prob){
+    //Logger test
+    std::string output_file = "../datasheets/Evolution_T1.csv";
+    int repeat_count = 10;
+    Logger log(output_file, prob);
+    int population_size = 5000;
+    int generation_limit = 500;
+    float cross_prob = 0.4;
+    float mutate_prob = 0.6;
+    int tournament_size = 10;
+    int step_evolution = 10;
+    Evolution evolution_solver(prob, population_size, cross_prob, mutate_prob); 
+    evolution_solver.setTournamentSize(tournament_size);
+
+    //Evolution algorithm test
+    log.runTest(&evolution_solver, generation_limit, step_evolution);
+    std::cout << "Best path:\n";
+    Solution* best = evolution_solver.getBest();
+    evolution_solver.printSolution(best);
+    std::cout << "Score: " << prob->evalutateSolution(best) << "\n";
+    std::cout << "________________________________________________\n";
+    prob->evalutateSolution(best);
+
+    //log.runCompareLog(population_size, generation_limit, cross_prob, mutate_prob, tournament_size, repeat_count);
+}
+
+void exerciseTwo(cVRP* prob){
+    //Logger test
+    std::string output_file = "../TabuSearch1.csv";
+    Logger log(output_file, prob);
+    int neighborhood_size = 50;
+    float tabu_size = 100;
+    int iteration_limit = 1000;
+    int step = 1;
+
+    log.runTsTest(iteration_limit, step, neighborhood_size, tabu_size);
+
+}
+
 
 int main(int, char**) {
 
@@ -93,7 +107,11 @@ int main(int, char**) {
     //std::cout << "Distance check: \n";
     //prob->printDistanceMatrix();
 
-    exerciseOne(prob);
+    //Exercise One
+    //exerciseOne(prob);
+
+    //Exercise Two
+    exerciseTwo(prob);
     
     //_________________________________________________________________________________________________
     //Clean up memory and close program

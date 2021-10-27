@@ -39,6 +39,34 @@ void Logger::runTest(Evolution* evolution_solver, int generations_limit,int evol
     std::cout << "Done!\n";
 }
 
+//Test Tabu Search
+void Logger::runTsTest(int generations_limit, int step, int neighborhood_size, int tabu_size){
+    //Test Ts 
+    TabuSearch ts(problem, neighborhood_size, tabu_size);
+
+    int iterations = generations_limit/step;
+    for(int i = 0; i < iterations; i++){
+        std::cout << "Iteration no. " << i + 1 <<"\n";
+        ts.search(step);
+        float best = ts.getBestEvaluation();
+        float current = ts.getBestScore();
+        float avg = ts.getAvgScore();
+        float worst = ts.getWorstScore();
+        std::cout << best << " - "  << current << " - " << avg << " - " << worst <<"\n";
+        file << i+1 << "," << best << ", " << current << "," << avg << "," << worst <<",\n";
+    }
+    std::cout << "Done!\n";
+    std::cout << "Best: ";
+    ts.getBest()->printPath();
+    std::cout << "Score: " << ts.getBestEvaluation() << "\n";
+
+    std::cout <<"\n_______________\n";
+    std::cout <<"TABU: \n";
+    ts.printTabu();
+    
+}
+
+
 //Compare evoltuion, random and greedy
 void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_size, int repeat_count){
     
