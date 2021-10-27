@@ -52,17 +52,18 @@ void Logger::runTsTest(int generations_limit, int step, int neighborhood_size, i
         float current = ts.getBestScore();
         float avg = ts.getAvgScore();
         float worst = ts.getWorstScore();
-        std::cout << best << " - "  << current << " - " << avg << " - " << worst <<"\n";
+        //std::cout << best << " - "  << current << " - " << avg << " - " << worst <<"\n";
         file << i+1 << "," << best << ", " << current << "," << avg << "," << worst <<",\n";
     }
     std::cout << "Done!\n";
     std::cout << "Best: ";
     ts.getBest()->printPath();
     std::cout << "Score: " << ts.getBestEvaluation() << "\n";
-
+    /*
     std::cout <<"\n_______________\n";
     std::cout <<"TABU: \n";
     ts.printTabu();
+    */
     
 }
 
@@ -95,6 +96,7 @@ void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob
     worst_greedy = greedy_solver.getWorstScore();
 
     std::cout << "Greedy done.\n";
+    std::cout << best_greedy << " - " << avg_greedy <<" - " << worst_greedy <<"\n";
     //Test algorithms
     for(int i = 0; i < repeat_count; i++){
         float best, avg, worst;

@@ -768,7 +768,8 @@ void TabuSearch::generateNeighbors(Solution* object){
 
 //Generates new solution based on new one.
 Solution* TabuSearch::generateNeighbor(Solution* object){
-    return swap(object);
+    //return swap(object);
+    return invert(object);
 }
 
 //Generates new solution based on new one.
@@ -793,8 +794,29 @@ Solution* TabuSearch::swap(Solution* object){
 }
 
 Solution* TabuSearch::invert(Solution* object){
-    std::cout << "This function is not implemented yet.\n";
-    return nullptr;
+    
+    Solution* new_sol = clone(object);
+    int dimension = new_sol ->getPathSize();
+    int start = rand() % dimension;
+    int end = rand() % dimension;
+    
+    //Make sure that indexes arent equal
+    while(start == end)
+        end = rand() % dimension;
+
+    if(start>end){
+        int temp = start;
+        start = end;
+        end = temp;
+    }
+
+    for(int i = 0; i + start < end; i++){
+        int temp = new_sol->getValueAt(start+i);
+        new_sol->setValueAt(start+i, new_sol->getValueAt(end-i));
+        new_sol->setValueAt(end-i, temp); 
+             
+    }
+    return new_sol;
 }
 
 //help functions
