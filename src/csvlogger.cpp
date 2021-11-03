@@ -67,6 +67,27 @@ void Logger::runTsTest(int generations_limit, int step, int neighborhood_size, i
     
 }
 
+//Anneling test
+void Logger::runAnnelingTest(int generations_limit, int step, int n_size, float start_temperature, int a_step, float multiplier){
+    SimulatedAnnealing sa(problem, n_size, start_temperature, a_step, multiplier);
+
+    int iterations = generations_limit/step;
+    for(int i = 0; i < iterations; i++){
+        std::cout << "Iteration no. " << i + 1 << " \tTemperature = " << sa.getTemperature() <<"\n";
+        sa.annealing(step);
+        float best = sa.getBestEvaluation();
+        float current = sa.getBestScore();
+        float avg = sa.getAvgScore();
+        float worst = sa.getWorstScore();
+        //std::cout << best << " - "  << current << " - " << avg << " - " << worst <<"\n";
+        file << i+1 << "," << best << ", " << current << "," << avg << "," << worst <<",\n";
+    }
+    std::cout << "Done!\n";
+    std::cout << "Best: ";
+    sa.printSolution(sa.getBest());
+    std::cout << "Score: " << sa.getBestEvaluation() << "\n";
+}
+
 
 //Compare evoltuion, random and greedy
 void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_size, int repeat_count){
@@ -104,6 +125,7 @@ void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob
 
         //Evolution test
         Evolution evolution_solver(problem, pop_size, cross_prob, mutate_prob);
+        evolution_solver.setTournamentSize(tournament_size);
         evolution_solver.evolution(generations_limit);
         best = evolution_solver.getBestScore();
         avg = evolution_solver.getAvgScore();
@@ -140,4 +162,40 @@ void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob
     file <<  best_greedy << "," << avg_greedy << "," << worst_greedy <<",\n";
     }
     std::cout << "Done!\n";
+}
+
+void Logger::runAnnelingLog(int generations_limit,int neighborhood_size,int start_temperature, int anneling_step, float multiplier, int repeat_count){
+    
+    float scores[repeat_count];
+
+    for(int i = 0; i < repeat_count; i++){
+        SimulatedAnnealing sa(problem, neighborhood_size, start_temperature, anneling_step, multiplier);
+        std::cout << "Anneling no. " << i + 1 << "\n";
+        sa.annealing(generations_limit);
+        float best = sa.getBestEvaluation();
+        scores[i] = best;
+    }
+    float best = std::numeric_limits<float>::max(); float avg = 0; float worst = -1;
+
+    for(int i = 0; i < repeat_count; i++){
+        avg += scores[i];
+        if(best > scores[i])
+            best = scores[i];
+        
+        if(worst < scores[i])
+            worst = scores[i];
+    }
+    avg = avg / repeat_count;
+
+    float std = 0;
+
+    for(int i = 0; i < repeat_count; i++){
+        std += pow(avg - scores[i], 2);
+    }
+    std = sqrt(std/repeat_count);
+
+    file << ", Anneling , ,\n";
+    file << best << "," << avg << "," << worst << "," << std <<",\n";
+
+
 }

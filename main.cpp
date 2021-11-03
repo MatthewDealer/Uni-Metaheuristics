@@ -7,6 +7,8 @@
 #include "include/csvlogger.hpp"
 
 
+#define EXERCISE 7
+
 void mutationTest(cVRP* prob){
     Evolution solver(prob, 100, 0.2, 0.2);
     solver.setTournamentSize(5);
@@ -38,15 +40,15 @@ void crossoverTest(cVRP* prob){
 
 void exerciseOne(cVRP* prob){
     //Logger test
-    std::string output_file = "../datasheets/Evolution_p7_1.csv";
+    std::string output_file = "../datasheets/Evolution_1.csv";
     int repeat_count = 1;
     Logger log(output_file, prob);
-    int population_size = 5000;
-    int generation_limit = 500;
-    float cross_prob = 0.4;
-    float mutate_prob = 0.7;
-    int tournament_size = 200;
-    int step_evolution = 10;
+    int population_size = 512;
+    int generation_limit = 10000;
+    float cross_prob = 0.73;
+    float mutate_prob = 0.86;
+    int tournament_size = 16;
+    int step_evolution = 100;
     Evolution evolution_solver(prob, population_size, cross_prob, mutate_prob); 
     evolution_solver.setTournamentSize(tournament_size);
 
@@ -60,22 +62,40 @@ void exerciseOne(cVRP* prob){
     std::cout << "________________________________________________\n";
     prob->evalutateSolution(best);
     
-    //log.runCompareLog(population_size, generation_limit, cross_prob, mutate_prob, tournament_size, repeat_count);
+    // log.runCompareLog(population_size, generation_limit, cross_prob, mutate_prob, tournament_size, repeat_count);
 }
 
 void exerciseTwo(cVRP* prob){
-    //Logger test
-    std::string output_file = "../TabuSearch_p7_inv.csv";
+    //Tabu search test
+    std::string output_file = "../datasheets/TabuSearch_p1_swap.csv";
     Logger log(output_file, prob);
-    int neighborhood_size = 200;
+    int neighborhood_size = 50;
     float tabu_size = 100;
-    int iteration_limit = 5000;
-    int step = 50;
+    int iteration_limit = 1000;
+    int step = 1;
 
     log.runTsTest(iteration_limit, step, neighborhood_size, tabu_size);
 
 }
 
+void exerciseThree(cVRP* prob){
+    //Simulated annealing test
+    std::string number = std::to_string(EXERCISE);
+    std::string output_file = "../datasheets/Anneling_compare_" + number + ".csv";
+    Logger log(output_file, prob);
+
+    int generations_limit = 20000;
+    int step = 20; 
+    int neighborhood_size = 32; 
+    float start_temperature = 200; 
+    int anneling_step = 10; 
+    float multiplier = 0.987;
+    int repeat_count = 10;
+    //log.runAnnelingTest(generations_limit, step, neighborhood_size, start_temperature, anneling_step, multiplier);
+    log.runAnnelingLog(generations_limit, neighborhood_size, start_temperature, anneling_step, multiplier, repeat_count);
+    
+
+}
 
 int main(int, char**) {
 
@@ -103,12 +123,12 @@ int main(int, char**) {
         "D:/Dev/Metaheuristic/problem instances/A-n39-k5.vrp",  //3
         "D:/Dev/Metaheuristic/problem instances/A-n45-k6.vrp",  //4
         "D:/Dev/Metaheuristic/problem instances/A-n48-k7.vrp",  //5
-        "D:/Dev/Metaheuristic/problem instances/A-n50-k7.vrp",  //6
+        "D:/Dev/Metaheuristic/problem instances/A-n54-k7.vrp",  //6
         "D:/Dev/Metaheuristic/problem instances/A-n60-k9.vrp"   //7
 
     };
-    //std::string file_name = (std::string) pc_problem_paths[1];
-    std::string file_name = (std::string) laptop_problem_paths[7];
+    std::string file_name = (std::string) pc_problem_paths[EXERCISE];
+    //std::string file_name = (std::string) laptop_problem_paths[1];
     
     std::cout << file_name << "\n";
     
@@ -127,7 +147,9 @@ int main(int, char**) {
     //exerciseOne(prob);
 
     //Exercise Two
-    exerciseTwo(prob);
+    // exerciseTwo(prob);
+
+    exerciseThree(prob);
     
     //_________________________________________________________________________________________________
     //Clean up memory and close program

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <deque>
+#include <math.h>
 
 class Solver{   
     protected:
@@ -19,6 +20,8 @@ class Solver{
         float getBestScore();
         float getAvgScore();
         float getWorstScore();
+
+        void printSolution(Solution* obj);
 
 };
 
@@ -149,4 +152,51 @@ class TabuSearch : public Solver{
         float getBestScore();
         float getAvgScore();
         float getWorstScore();
+};
+
+
+class SimulatedAnnealing : public Solver{
+    private:
+        int neighborhood_size;
+        float temperature;
+        int t;
+        int step;
+        float multiplier;
+
+        Solution* current_solution;
+        float current_evaluation;
+        Solution* best_solution;
+        float best_evaluation;
+        Solution** neighbors;
+        float* evaluation;
+    
+    public:
+        SimulatedAnnealing(cVRP* problem, int n_size, float start_temperature, int step, float multiplier);
+        ~SimulatedAnnealing();
+        void initialize();
+
+        //main function
+        void annealing(int iterations);
+        int getBestOfNeighbors();
+
+        //Output functions
+        Solution* getBest();
+        float getBestEvaluation();
+
+        //Neighbors functions
+        void generateNeighbors(Solution* object);
+        Solution* generateNeighbor(Solution* object);
+        Solution* swap(Solution* object);
+        Solution* invert(Solution* object);
+
+        //help functions
+        Solution* clone(Solution* object);
+        bool isEqual(Solution* obj1, Solution* obj2);
+        bool isNeighbor(Solution* object);
+
+        float getBestScore();
+        float getAvgScore();
+        float getWorstScore();
+
+        float getTemperature();
 };

@@ -77,6 +77,32 @@ Solution* Solver::generateGreedySolution(){
     return solution_ptr;
 }
 
+void Solver::printSolution(Solution* obj){
+    int path_count = 1;
+    int max_capacity = problem->getVehicleCapacity();
+    int current_capacity = 0;
+    std::cout << "Solution: \n";
+    std::cout << "\tPath no. " << path_count << ": ";
+    for(int i =0; i < problem->getDimension() - 1; i++){
+        int mag = obj->getValueAt(i);
+        int demand = problem->getDemands(mag);
+        if(current_capacity + demand > max_capacity){
+            std::cout << "\n";
+            current_capacity = 0;
+            path_count++;
+            std::cout << "\tPath no. " << path_count << ": ";
+        }
+        else{
+            if(i>0)
+            std::cout << " - ";
+        }
+        std::cout << mag;
+        current_capacity += demand;
+        
+    }
+    std::cout << "\n";
+}
+
 //Random algorithm
 Random::Random(cVRP* problem, int count) : Solver(problem){
     solution_count =  count;
@@ -338,7 +364,7 @@ Solution* Evolution::getBest(){
 // Crossing
 Solution* Evolution::crossover(Solution* parent_one, Solution* parent_two){
     return orderedCrossover(parent_one, parent_two);
-    //return pmCrossover(parent_one, parent_two);
+    // return pmCrossover(parent_one, parent_two);
 }
 
 Solution* Evolution::orderedCrossover(Solution* parent_one, Solution* parent_two){
@@ -400,7 +426,7 @@ Solution* Evolution::pmCrossover(Solution* parent_one, Solution* parent_two){
         child->setValueAt(i, parent_one->getValueAt(i));
     }
 
-    for(int j = start_point; j <= end_point; j++){
+    for(int j = start_point; j < end_point; j++){
         for(int i = 0; i < size; i++){
             if(child->getValueAt(i) == parent_two->getValueAt(j)){
                 child->setValueAt(i, parent_one->getValueAt(j));
@@ -408,7 +434,7 @@ Solution* Evolution::pmCrossover(Solution* parent_one, Solution* parent_two){
         }
     }
 
-    for(int i = start_point; i <= end_point; i++){
+    for(int i = start_point; i < end_point; i++){
        child->setValueAt(i, parent_two->getValueAt(i)); 
     }
     return child;
@@ -453,11 +479,10 @@ void Evolution::invertMutation(Solution* object){
     }
 
     for(int i = 0; i + start< end; i++){
-        if(start+i != end-i){
-            int temp = object->getValueAt(start+i);
-            object->setValueAt(start+i, object->getValueAt(end-i));
-            object->setValueAt(end-i, temp); 
-        }
+        int temp = object->getValueAt(start+i);
+        object->setValueAt(start+i, object->getValueAt(end-i));
+        object->setValueAt(end-i, temp); 
+        
              
     }
 
@@ -662,6 +687,7 @@ void TabuSearch::search(int iterations){
         //Move forward to next best place //najlepszy, uwzględniając listę Tabu
         delete current_solution;
         current_solution = clone(neighbors[best_neighbor_index]);
+        current_evaluation = problem->evalutateSolution(current_solution);
 
         //Check if best path is found
         if(evaluation[best_neighbor_index] < best_evaluation){
@@ -698,9 +724,9 @@ Solution* TabuSearch::getBest(){
     return best_solution;
 }
 
- float TabuSearch::getBestEvaluation(){
+float TabuSearch::getBestEvaluation(){
      return best_evaluation;
- }
+}
 
 void TabuSearch::printTabu(){
     for(int i=0; i < tabu.size(); i++)
@@ -769,7 +795,7 @@ void TabuSearch::generateNeighbors(Solution* object){
 //Generates new solution based on new one.
 Solution* TabuSearch::generateNeighbor(Solution* object){
     //return swap(object);
-    return invert(object);
+   return invert(object);
 }
 
 //Generates new solution based on new one.
@@ -893,4 +919,289 @@ float TabuSearch::getWorstScore(){
         }
     }
     return worst_score;
+}
+
+/////////////////////////
+// Simulated Annealing //
+/////////////////////////
+SimulatedAnnealing::SimulatedAnnealing(cVRP* problem, int neighborhood_size, float start_temperature, int step, float multiplier) : Solver(problem){
+    this->step = step;
+    this->multiplier = multiplier;
+    this->neighborhood_size = neighborhood_size;
+    this->temperature = start_temperature;
+    initialize();
+}
+
+//Destructor
+SimulatedAnnealing::~SimulatedAnnealing(){
+    problem = nullptr;
+
+    //Clean memory from neighbors
+    for(int i = 0; i < neighborhood_size; i++){
+        delete neighbors[i];
+    }
+
+    //clean rest of memory
+    delete[] neighbors;
+    delete[] evaluation;
+    delete current_solution;
+    delete best_solution;
+}
+
+//initialize SimulatedAnnealing
+void SimulatedAnnealing::initialize(){    
+    current_solution = generateRandomSolution();
+    best_solution = clone(current_solution);
+    current_evaluation = problem->evalutateSolution(current_solution);
+    neighbors = new Solution*[neighborhood_size];
+    evaluation = new float[neighborhood_size];
+    best_evaluation = current_evaluation;
+    t = 0;
+
+    for(int i = 0; i < neighborhood_size; i++){
+        neighbors[i] = nullptr;
+    }
+
+
+
+}
+
+//main function of searcher
+void SimulatedAnnealing::annealing(int iterations){
+    for(int i = 0; i < iterations; i++){ 
+        generateNeighbors(current_solution);
+        int best_neighbor_index = getBestOfNeighbors();
+
+        // Calculate temp
+        float diff = current_evaluation - evaluation[best_neighbor_index];
+        float tolerance = exp((diff)/temperature);
+        float choice = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+        // if(current_evaluation < evaluation[best_neighbor_index])
+        //     std::cout << "Diff = "<< diff << " \t P = " << tolerance << " \t chance = " << choice << "\n";
+
+        //Move forward to next best place or check temp
+        if(current_evaluation > evaluation[best_neighbor_index] || choice < tolerance){
+            delete current_solution;
+            current_solution = clone(neighbors[best_neighbor_index]);
+            current_evaluation = evaluation[best_neighbor_index];
+        
+
+            //Check if best path is found
+            if(evaluation[best_neighbor_index] < best_evaluation){
+                    delete best_solution;
+                    best_solution = clone(neighbors[best_neighbor_index]);
+                    best_evaluation = evaluation[best_neighbor_index];
+            }
+        }
+
+
+        t++; // t+1
+        if(t>=step){
+            temperature = temperature * multiplier;
+            t = 0;
+        }
+    }
+}
+
+
+int SimulatedAnnealing::getBestOfNeighbors(){
+    float best = -1;
+    int index = 0;
+    for(int i = 0; i < neighborhood_size; i++){
+        float score = evaluation[i];
+        if(best==-1 || best > score){
+                best = evaluation[i];
+                index = i;
+        }
+        
+    }
+    return index;
+}
+
+//Output functions
+Solution* SimulatedAnnealing::getBest(){
+    return best_solution;
+}
+
+float SimulatedAnnealing::getBestEvaluation(){
+     return best_evaluation;
+}
+
+
+void SimulatedAnnealing::generateNeighbors(Solution* object){
+
+    //delete old neighborhood
+    for(int i = 0; i < neighborhood_size; i++){        
+        if(neighbors[i] == nullptr)
+            break;
+
+        else{
+            delete neighbors[i];
+            neighbors[i] = nullptr;
+        }
+    }
+
+    
+    //Generate new neighbors
+    for(int i = 0; i < neighborhood_size; i++){
+        int is_unique_counter = 5;
+        Solution* new_sol = generateNeighbor(object);
+        bool is_unique = !isNeighbor(new_sol);
+        
+        while(is_unique == false){
+            if(new_sol != nullptr){
+                delete new_sol;
+                new_sol = nullptr;
+            }
+            new_sol = generateNeighbor(object);
+            is_unique = !isNeighbor(new_sol);
+            is_unique_counter--;
+            if(is_unique_counter==0)
+                break;
+        }
+        
+        //Dev msg
+        /*
+        if(is_unique_counter == 0){
+            std::cout << "Unique counter is 0. Check if everything is all right.\n";
+        }
+        */
+
+        neighbors[i] = new_sol;
+    }
+
+    /*
+    //Print new neighbors
+    for(int i = 0; i < neighborhood_size; i++)
+        neighbors[i]->printPath();
+    */
+
+    //Evaluate new neighbors
+    for(int i = 0; i < neighborhood_size; i++){
+        float score = problem->evalutateSolution(neighbors[i]);
+        //std::cout << score << "\n";
+        evaluation[i] = score;
+    }
+
+    
+}
+
+//Generates new solution based on new one.
+Solution* SimulatedAnnealing::generateNeighbor(Solution* object){
+    //return swap(object);
+   return invert(object);
+}
+
+//Generates new solution based on new one.
+Solution* SimulatedAnnealing::swap(Solution* object){
+
+    Solution* new_sol = clone(object);
+    int dimension = object->getPathSize();
+    int first_index = rand() % dimension;
+    int second_index = rand() % dimension;
+    
+    //Make sure that indexes arent equal
+    while(second_index == first_index)
+        second_index = rand() % dimension;
+
+    int fist_value = new_sol->getValueAt(first_index);
+    int second_value = new_sol->getValueAt(second_index);
+
+    new_sol->setValueAt(first_index, second_value);
+    new_sol->setValueAt(second_index, fist_value);
+
+    return new_sol;
+}
+
+Solution* SimulatedAnnealing::invert(Solution* object){
+    
+    Solution* new_sol = clone(object);
+    int dimension = new_sol ->getPathSize();
+    int start = rand() % dimension;
+    int end = rand() % dimension;
+    
+    //Make sure that indexes arent equal
+    while(start == end)
+        end = rand() % dimension;
+
+    if(start>end){
+        int temp = start;
+        start = end;
+        end = temp;
+    }
+
+    for(int i = 0; i + start < end; i++){
+        int temp = new_sol->getValueAt(start+i);
+        new_sol->setValueAt(start+i, new_sol->getValueAt(end-i));
+        new_sol->setValueAt(end-i, temp); 
+             
+    }
+    return new_sol;
+}
+
+
+//Help functions
+Solution* SimulatedAnnealing::clone(Solution* object){
+    Solution* solution_ptr = new Solution(problem->getDimension());
+    for(int i = 0 ; i < solution_ptr->getPathSize(); i++){
+        solution_ptr->setValueAt(i, object->getValueAt(i));
+    }
+    return solution_ptr;
+}
+
+bool SimulatedAnnealing::isEqual(Solution* obj1, Solution* obj2){
+    if(obj1->getPathSize() != obj2->getPathSize())
+        return false;
+
+    for(int i = 0; i < obj1->getPathSize(); i++){
+        if(obj1->getValueAt(i) != obj2->getValueAt(i))
+            return false;
+    }
+
+    return true;
+}
+//Check if object is in neighbor list
+ bool SimulatedAnnealing::isNeighbor(Solution* object){
+    for(int i = 0; i < neighborhood_size; i++){
+        if(neighbors[i] == nullptr)
+            return false;
+        if(isEqual(object, neighbors[i]))
+            return true;
+        
+    }
+    return false;
+}
+float SimulatedAnnealing::getBestScore(){
+    float best_score = -1;
+    for(int i = 0; i < neighborhood_size; i++){
+        float score = evaluation[i];
+        if(best_score == -1 || best_score > score){
+            best_score = score;
+        }
+    }
+    return best_score;
+
+}
+float SimulatedAnnealing::getAvgScore(){
+    float sum = 0;
+    for(int i = 0; i < neighborhood_size; i++){
+        sum += evaluation[i]; 
+    }
+    sum = sum / neighborhood_size;
+    return sum;
+
+}
+float SimulatedAnnealing::getWorstScore(){
+    float worst_score = -1;
+    for(int i = 0; i < neighborhood_size; i++){
+        float score = evaluation[i];
+        if(worst_score == -1 || worst_score  < score){
+            worst_score = score;
+        }
+    }
+    return worst_score;
+}
+float SimulatedAnnealing::getTemperature(){
+    return temperature;
 }
