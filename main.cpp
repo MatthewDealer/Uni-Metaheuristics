@@ -5,6 +5,7 @@
 #include "include/solution.hpp"
 #include "include/solver.hpp"
 #include "include/csvlogger.hpp"
+#include <cstdio>
 
 
 #define EXERCISE 7
@@ -44,7 +45,7 @@ void exerciseOne(cVRP* prob){
     int repeat_count = 1;
     Logger log(output_file, prob);
     int population_size = 512;
-    int generation_limit = 10000;
+    int generation_limit = 20000;
     float cross_prob = 0.73;
     float mutate_prob = 0.86;
     int tournament_size = 16;
@@ -81,28 +82,25 @@ void exerciseTwo(cVRP* prob){
 void exerciseThree(cVRP* prob){
     //Simulated annealing test
     std::string number = std::to_string(EXERCISE);
-    std::string output_file = "../datasheets/Anneling_compare_" + number + ".csv";
+    std::string output_file = "../datasheets/Anneling_p_comp" + number + ".csv";
     Logger log(output_file, prob);
 
-    int generations_limit = 20000;
-    int step = 20; 
-    int neighborhood_size = 32; 
-    float start_temperature = 200; 
-    int anneling_step = 10; 
-    float multiplier = 0.987;
+    int generations_limit = 30000;
+    int step = 1; 
+    int neighborhood_size = 16; 
+    float start_temperature = 150; 
+    int anneling_step = 64; 
+    float multiplier = 0.978;
     int repeat_count = 10;
-    //log.runAnnelingTest(generations_limit, step, neighborhood_size, start_temperature, anneling_step, multiplier);
+    // log.runAnnelingTest(generations_limit, step, neighborhood_size, start_temperature, anneling_step, multiplier);
     log.runAnnelingLog(generations_limit, neighborhood_size, start_temperature, anneling_step, multiplier, repeat_count);
     
 
 }
 
 int main(int, char**) {
-
+    //std::getchar();
     //Path to file
-    //std::string file_name = "D:/Dev/Uni-Metaheuristics/problem instances/test-file.vrp";
-    //std::string file_name = "D:/Dev/Uni-Metaheuristics/problem instances/A-n32-k5.vrp";
-    //std::string file_name = "D:/Dev/Metaheuristic/problem instances/test-file.vrp";
     std::string laptop_problem_paths[8] = {
         "D:/Dev/Uni-Metaheuristics/problem instances/test-file.vrp",
         "D:/Dev/Uni-Metaheuristics/problem instances/A-n32-k5.vrp",
@@ -127,7 +125,7 @@ int main(int, char**) {
         "D:/Dev/Metaheuristic/problem instances/A-n60-k9.vrp"   //7
 
     };
-    std::string file_name = (std::string) pc_problem_paths[EXERCISE];
+    std::string file_name = (std::string) laptop_problem_paths[EXERCISE];
     //std::string file_name = (std::string) laptop_problem_paths[1];
     
     std::cout << file_name << "\n";
@@ -154,5 +152,6 @@ int main(int, char**) {
     //_________________________________________________________________________________________________
     //Clean up memory and close program
     //delete prob;
+    //std::getchar();
     return 0;
 }

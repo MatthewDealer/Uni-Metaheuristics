@@ -76,11 +76,10 @@ void Logger::runAnnelingTest(int generations_limit, int step, int n_size, float 
         std::cout << "Iteration no. " << i + 1 << " \tTemperature = " << sa.getTemperature() <<"\n";
         sa.annealing(step);
         float best = sa.getBestEvaluation();
-        float current = sa.getBestScore();
-        float avg = sa.getAvgScore();
-        float worst = sa.getWorstScore();
+        float current = sa.getCurrentScore();
+
         //std::cout << best << " - "  << current << " - " << avg << " - " << worst <<"\n";
-        file << i+1 << "," << best << ", " << current << "," << avg << "," << worst <<",\n";
+        file << i+1 << "," << best << ", " << current <<",\n";
     }
     std::cout << "Done!\n";
     std::cout << "Best: ";

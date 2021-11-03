@@ -978,7 +978,7 @@ void SimulatedAnnealing::annealing(int iterations){
         float choice = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
         // if(current_evaluation < evaluation[best_neighbor_index])
-        //     std::cout << "Diff = "<< diff << " \t P = " << tolerance << " \t chance = " << choice << "\n";
+        //std::cout << "diff = "<< diff << " \t tolerance = " << tolerance << " \t chance = " << choice << "\n";
 
         //Move forward to next best place or check temp
         if(current_evaluation > evaluation[best_neighbor_index] || choice < tolerance){
@@ -1182,6 +1182,10 @@ float SimulatedAnnealing::getBestScore(){
     }
     return best_score;
 
+
+}
+float SimulatedAnnealing::getCurrentScore(){
+    return current_evaluation;
 }
 float SimulatedAnnealing::getAvgScore(){
     float sum = 0;

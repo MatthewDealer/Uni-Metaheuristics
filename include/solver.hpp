@@ -197,6 +197,6 @@ class SimulatedAnnealing : public Solver{
         float getBestScore();
         float getAvgScore();
         float getWorstScore();
-
+        float getCurrentScore();
         float getTemperature();
 };
