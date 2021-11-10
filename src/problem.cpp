@@ -22,12 +22,12 @@ cVRP::cVRP(int capacity,int dimension){
 cVRP::~cVRP(){
 
     for(int i = 0; i < dimension; i++){
-        delete distance_matrix[i];
+        delete[] distance_matrix[i];
     }
 
     delete[] distance_matrix;
-    delete coordinates;
-    delete demands;
+    delete[] coordinates;
+    delete[] demands;
 }
 
 int cVRP::getDimension(){

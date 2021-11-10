@@ -85,7 +85,7 @@ void exerciseThree(cVRP* prob){
     std::string output_file = "../datasheets/Anneling_p_comp" + number + ".csv";
     Logger log(output_file, prob);
 
-    int generations_limit = 30000;
+    int generations_limit = 300;
     int step = 1; 
     int neighborhood_size = 16; 
     float start_temperature = 150; 
@@ -125,7 +125,20 @@ int main(int, char**) {
         "D:/Dev/Metaheuristic/problem instances/A-n60-k9.vrp"   //7
 
     };
-    std::string file_name = (std::string) laptop_problem_paths[EXERCISE];
+
+        std::string problem_paths[8] = {
+        "../problem instances/test-file.vrp", //0
+        "../problem instances/A-n32-k5.vrp",  //1
+        "../problem instances/A-n37-k6.vrp",  //2
+        "../problem instances/A-n39-k5.vrp",  //3
+        "../problem instances/A-n45-k6.vrp",  //4
+        "../problem instances/A-n48-k7.vrp",  //5
+        "../problem instances/A-n54-k7.vrp",  //6
+        "../problem instances/A-n60-k9.vrp"   //7
+
+    };
+
+    std::string file_name = (std::string) problem_paths[EXERCISE];
     //std::string file_name = (std::string) laptop_problem_paths[1];
     
     std::cout << file_name << "\n";
@@ -151,7 +164,7 @@ int main(int, char**) {
     
     //_________________________________________________________________________________________________
     //Clean up memory and close program
-    //delete prob;
+    delete prob;
     //std::getchar();
     return 0;
 }
