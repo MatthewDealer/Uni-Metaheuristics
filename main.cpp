@@ -5,7 +5,9 @@
 #include "include/solution.hpp"
 #include "include/solver.hpp"
 #include "include/csvlogger.hpp"
+#include "include/researcher.hpp"
 #include <cstdio>
+
 
 
 #define EXERCISE 7
@@ -42,14 +44,20 @@ void crossoverTest(cVRP* prob){
 void exerciseOne(cVRP* prob){
     //Logger test
     std::string output_file = "../datasheets/Evolution_1.csv";
-    int repeat_count = 1;
+    
     Logger log(output_file, prob);
+
+    //EA parameters
     int population_size = 512;
     int generation_limit = 20000;
     float cross_prob = 0.73;
     float mutate_prob = 0.86;
     int tournament_size = 16;
+    
+    //Log parameters
     int step_evolution = 100;
+    int repeat_count = 1;
+
     Evolution evolution_solver(prob, population_size, cross_prob, mutate_prob); 
     evolution_solver.setTournamentSize(tournament_size);
 
@@ -70,9 +78,13 @@ void exerciseTwo(cVRP* prob){
     //Tabu search test
     std::string output_file = "../datasheets/TabuSearch_p1_swap.csv";
     Logger log(output_file, prob);
+
+    // Sa parameters
     int neighborhood_size = 50;
     float tabu_size = 100;
     int iteration_limit = 1000;
+
+    //Log parameters
     int step = 1;
 
     log.runTsTest(iteration_limit, step, neighborhood_size, tabu_size);
@@ -85,12 +97,15 @@ void exerciseThree(cVRP* prob){
     std::string output_file = "../datasheets/Anneling_p_comp" + number + ".csv";
     Logger log(output_file, prob);
 
-    int generations_limit = 300;
-    int step = 1; 
+    //SA parameters
     int neighborhood_size = 16; 
     float start_temperature = 150; 
     int anneling_step = 64; 
     float multiplier = 0.978;
+    int generations_limit = 300;
+
+    //loger parameters
+    int step = 1; 
     int repeat_count = 10;
     // log.runAnnelingTest(generations_limit, step, neighborhood_size, start_temperature, anneling_step, multiplier);
     log.runAnnelingLog(generations_limit, neighborhood_size, start_temperature, anneling_step, multiplier, repeat_count);
@@ -160,8 +175,12 @@ int main(int, char**) {
     //Exercise Two
     // exerciseTwo(prob);
 
-    exerciseThree(prob);
+    //Exercise Three
+    // exerciseThree(prob);
     
+    
+
+
     //_________________________________________________________________________________________________
     //Clean up memory and close program
     delete prob;
