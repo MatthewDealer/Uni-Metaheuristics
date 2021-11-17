@@ -7,12 +7,12 @@
 #include "solution.hpp"
 #include "solver.hpp"
 
-enum mutation_type { swap, invert};
-enum crossing_type { swap, invert};
-enum selection_type { swap, invert};
+enum mutation_type {swap, invert};
+enum crossing_type {oc, xc};
+enum selection_type {rullette, tournament};
 
 class Researcher{
-    private:
+    protected:
         int sample_count;
         int tests_count;
 
@@ -30,12 +30,25 @@ class Researcher{
         std::chrono::nanoseconds duration;
 
 
+        //Problem instances     
+        std::string problem_paths[7] = {
+        "../problem instances/A-n32-k5.vrp",  //0
+        "../problem instances/A-n37-k6.vrp",  //1
+        "../problem instances/A-n39-k5.vrp",  //2
+        "../problem instances/A-n45-k6.vrp",  //3
+        "../problem instances/A-n48-k7.vrp",  //4
+        "../problem instances/A-n54-k7.vrp",  //5
+        "../problem instances/A-n60-k9.vrp"   //6
+
+    };
+
     public:
         //Constructor of researcher.
-        Researcher(int number, mutation_type m_mode) : exercise_number(number), mutate_mode(m_mode){};
+        Researcher(int iterations, mutation_type m_mode) : iteration_limit(iterations), mutate_mode(m_mode){};
         // ~Researcher();
 
         //Set tests count
+        void setExNumber(int number);
         void setTestsCount(int count);
         void setSampleCount(int count);
 
@@ -55,24 +68,42 @@ class EA_Researcher : public Researcher{
         int pop_size;
         float cross_probability;
         float mutate_probability;
+        int tournament_size;
 
         //Shift Values
         float cross_shift = 0;
         float mutate_shift = 0;
         int pop_shift = 0;
+        int tournament_shift = 0;
 
 
     public:
-        //Constructor of EA researcher.
-        EA_Researcher(int number, mutation_type m_mode, crossing_type c_mode, 
-            selection_type s_mode, int population_size, float cross_p, float mutate_p) : Researcher(number, m_mode), 
+        /*Constructor of EA researcher.
+        //@param number population size
+        //@param m_mode mutation mode
+        //@param c_mode crossing mode
+        */
+        EA_Researcher(int iterations, mutation_type m_mode, crossing_type c_mode, 
+            selection_type s_mode, int population_size, float cross_p, float mutate_p) : Researcher(iterations, m_mode), 
             cross_mode(c_mode), select_mode(s_mode), pop_size(population_size), cross_probability(cross_p), mutate_probability(mutate_p){};
 
 
+        //Set other values
+        void setTournamentSize(int size);
         // Set shift values
         void setCrossShift(float shift);
         void setMutateShift(float shift);
         void setPopShift(int shift);
+        void setPTournamentShift(int shift);
+
+        //Set parameters
+        void setCross(float p);
+        void setMutate(float p);
+        void setPopSize(int size);
+        void setTSize(int size);
+        void setIterations(int size);
+
+        void research();
 };
 
 class TS_Researcher : public Researcher{

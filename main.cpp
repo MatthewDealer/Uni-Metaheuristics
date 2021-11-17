@@ -10,7 +10,7 @@
 
 
 
-#define EXERCISE 7
+#define EXERCISE 1
 
 void mutationTest(cVRP* prob){
     Evolution solver(prob, 100, 0.2, 0.2);
@@ -48,10 +48,10 @@ void exerciseOne(cVRP* prob){
     Logger log(output_file, prob);
 
     //EA parameters
-    int population_size = 512;
-    int generation_limit = 20000;
+    int population_size = 5000;
+    int generation_limit = 500;
     float cross_prob = 0.73;
-    float mutate_prob = 0.86;
+    float mutate_prob = 0.46;
     int tournament_size = 16;
     
     //Log parameters
@@ -113,6 +113,79 @@ void exerciseThree(cVRP* prob){
 
 }
 
+void exerciseFour(){
+
+    /// MAX CHILDS = 1 000 000
+    int iterations = 200; //200
+    mutation_type m = mutation_type::invert;
+    crossing_type c = crossing_type::oc;
+    selection_type s = selection_type::tournament;
+    int population_size = 3500; //3500
+    float cross_p = 0.7; //0.9
+    float mutate_p = 0.1; // 0.83
+    int tournament_size = 12; //20
+
+
+    EA_Researcher ea(iterations, m, c, s, population_size, cross_p, mutate_p);
+    ea.setExNumber(0);
+    ea.setTournamentSize(tournament_size);
+
+
+    //Research Mutate
+    ea.setIterShift(0);
+    ea.setPopShift(0);
+    ea.setMutateShift(0.1);
+    ea.setCrossShift(0);
+    
+    ea.setSampleCount(10);
+    ea.setTestsCount(9);
+    ea.research();
+    
+    //Research Cross
+    ea.setCross(0.1);
+    ea.setIterShift(0);
+    ea.setPopShift(0);
+    ea.setMutateShift(0);
+    ea.setCrossShift(0.1);
+    
+    ea.research();
+    
+    //Research PopSize
+    ea.setIterShift(0);
+    ea.setPopShift(500);
+    ea.setMutateShift(0);
+    ea.setCrossShift(0);
+    ea.setSampleCount(10);
+    ea.setTestsCount(3);
+    ea.research();
+
+    //Research Iterations Size
+    ea.setIterShift(100);
+    ea.setPopShift(0);
+    ea.setMutateShift(0);
+    ea.setCrossShift(0);
+    ea.setPTournamentShift(0);
+
+    ea.setSampleCount(10);
+    ea.setTestsCount(4);
+    ea.research();
+
+    //Research Tournament Size
+    ea.setIterShift(0);
+    ea.setPopShift(0);
+    ea.setMutateShift(0);
+    ea.setCrossShift(0);
+    ea.setPTournamentShift(10);
+
+    ea.setSampleCount(10);
+    ea.setTestsCount(5);
+    ea.research();
+
+
+
+
+}
+
 int main(int, char**) {
     //std::getchar();
     //Path to file
@@ -152,7 +225,7 @@ int main(int, char**) {
         "../problem instances/A-n60-k9.vrp"   //7
 
     };
-
+    
     std::string file_name = (std::string) problem_paths[EXERCISE];
     //std::string file_name = (std::string) laptop_problem_paths[1];
     
@@ -165,6 +238,7 @@ int main(int, char**) {
     std::cout << "Vehicle capacity: " << prob->getVehicleCapacity() << "\n";
     std::cout << "Dimension: " << prob->getDimension() << "\n";
     std::cout << "______________________________________________________\n";
+    
     //std::cout << "Distance check: \n";
     //prob->printDistanceMatrix();
 
@@ -178,12 +252,12 @@ int main(int, char**) {
     //Exercise Three
     // exerciseThree(prob);
     
-    
-
+    //Exercise Four
+    exerciseFour();
 
     //_________________________________________________________________________________________________
     //Clean up memory and close program
-    delete prob;
+    //delete prob;
     //std::getchar();
     return 0;
 }

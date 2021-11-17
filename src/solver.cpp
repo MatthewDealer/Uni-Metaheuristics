@@ -364,7 +364,7 @@ Solution* Evolution::getBest(){
 // Crossing
 Solution* Evolution::crossover(Solution* parent_one, Solution* parent_two){
     return orderedCrossover(parent_one, parent_two);
-    // return pmCrossover(parent_one, parent_two);
+    //return pmCrossover(parent_one, parent_two);
 }
 
 Solution* Evolution::orderedCrossover(Solution* parent_one, Solution* parent_two){
@@ -482,8 +482,7 @@ void Evolution::invertMutation(Solution* object){
         int temp = object->getValueAt(start+i);
         object->setValueAt(start+i, object->getValueAt(end-i));
         object->setValueAt(end-i, temp); 
-        
-             
+       
     }
 
 }
