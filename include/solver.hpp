@@ -50,6 +50,7 @@ class Greedy : public Solver{
         Solution* generateGreedySolution(int first);
         void generateSolutions();
         Solution* getSolution(int index);
+        int getbestIndex();
         float getBestScore();
         float getAvgScore();
         float getWorstScore();

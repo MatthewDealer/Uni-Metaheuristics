@@ -10,6 +10,13 @@ Logger::~Logger(){
     file.close();
 }
 
+void Logger::LogToFile(std::vector<std::string> vector_of_words){
+    for(std::string word : vector_of_words){
+        file << word << ",";
+    }
+    file << "\n";
+}
+
 void Logger::runTest(Evolution* evolution_solver, int generations_limit,int evolution_step){
 
     //evolution_solver->printPop();
@@ -161,6 +168,73 @@ void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob
     file <<  best_greedy << "," << avg_greedy << "," << worst_greedy <<",\n";
     }
     std::cout << "Done!\n";
+}
+
+void Logger::runEALog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_sizem, int repeat_count){
+float scores[repeat_count];
+
+    for(int i = 0; i < repeat_count; i++){
+        Evolution ea(problem, pop_size, cross_prob, mutate_prob);
+        ea.setTournamentSize(tournament_sizem);
+        std::cout << "EA no. " << i + 1 << "\n";
+        ea.evolution(generations_limit);
+        float best = ea.getBestScore();
+        scores[i] = best;
+    }
+    float best = std::numeric_limits<float>::max(); float avg = 0; float worst = -1;
+
+    for(int i = 0; i < repeat_count; i++){
+        avg += scores[i];
+        if(best > scores[i])
+            best = scores[i];
+        
+        if(worst < scores[i])
+            worst = scores[i];
+    }
+    avg = avg / repeat_count;
+
+    float std = 0;
+
+    for(int i = 0; i < repeat_count; i++){
+        std += pow(avg - scores[i], 2);
+    }
+    std = sqrt(std/repeat_count);
+
+    file << ", ea , ,\n";
+    file << best << "," << avg << "," << worst << "," << std <<",\n";
+}
+
+void Logger::runTsLog(int generations_limit, int step, int neighborhood_size, int tabu_size, int repeat_count){
+float scores[repeat_count];
+
+    for(int i = 0; i < repeat_count; i++){
+        TabuSearch ts(problem, neighborhood_size,tabu_size);
+        std::cout << "Ts no. " << i + 1 << "\n";
+        ts.search(generations_limit);
+        float best = ts.getBestEvaluation();
+        scores[i] = best;
+    }
+    float best = std::numeric_limits<float>::max(); float avg = 0; float worst = -1;
+
+    for(int i = 0; i < repeat_count; i++){
+        avg += scores[i];
+        if(best > scores[i])
+            best = scores[i];
+        
+        if(worst < scores[i])
+            worst = scores[i];
+    }
+    avg = avg / repeat_count;
+
+    float std = 0;
+
+    for(int i = 0; i < repeat_count; i++){
+        std += pow(avg - scores[i], 2);
+    }
+    std = sqrt(std/repeat_count);
+
+    file << ", Tabu search , ,\n";
+    file << best << "," << avg << "," << worst << "," << std <<",\n";
 }
 
 void Logger::runAnnelingLog(int generations_limit,int neighborhood_size,int start_temperature, int anneling_step, float multiplier, int repeat_count){

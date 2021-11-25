@@ -52,7 +52,7 @@ void cVRP::setCoordinates(std::vector<std::pair<int,int>> coords){
             this->coordinates[i] = coords[i];
         }
         this->calculateDitanceMatrix();
-        std::cout << "Coords set, Distance matrix calculated!\n";
+        //std::cout << "Coords set, Distance matrix calculated!\n";
     }
     else
         std::cout << "Wrong size of vector!\n";
@@ -64,7 +64,7 @@ void cVRP::setDemands(std::vector<int> new_demands){
         for(int i = 0; i < dimension; i++){
             this->demands[i] = new_demands[i];
         }
-        std::cout << "Demands set!\n";
+        //std::cout << "Demands set!\n";
     }
     else
         std::cout << "Wrong size!\n";

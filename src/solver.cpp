@@ -120,6 +120,7 @@ Random::~Random(){
     delete[] scores;
 }
 
+
 void Random::genarateSolutions(){
     for(int i = 0; i < solution_count; i++){
         solutions[i] = generateRandomSolution();
@@ -210,6 +211,23 @@ void Greedy::generateSolutions(){
     for (int i = 0; i < solution_count; i++){
         solutions[i] = generateGreedySolution(i);
     }
+}
+
+int Greedy::getbestIndex(){
+    float best_score = -1;
+    float index = -1;
+    for(int i = 0; i < solution_count; i++){
+        float score = problem->evalutateSolution(solutions[i]);
+        if(best_score == -1 || best_score > score){
+            best_score = score;
+            index = i;
+        }
+    }
+    return index;
+}
+
+Solution* Greedy::getSolution(int index){
+    return solutions[index];
 }
 
 float Greedy::getBestScore(){

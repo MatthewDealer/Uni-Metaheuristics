@@ -6,6 +6,7 @@
 #include "problem.hpp"
 #include "solution.hpp"
 #include "solver.hpp"
+#include "csvlogger.hpp"
 
 enum mutation_type {swap, invert};
 enum crossing_type {oc, xc};
@@ -29,6 +30,9 @@ class Researcher{
         std::chrono::steady_clock::time_point end;
         std::chrono::nanoseconds duration;
 
+        std::string output_file = "../datasheets/Evolution_research_popxiter_2.csv";
+        Logger* log;
+
 
         //Problem instances     
         std::string problem_paths[7] = {
@@ -44,8 +48,10 @@ class Researcher{
 
     public:
         //Constructor of researcher.
-        Researcher(int iterations, mutation_type m_mode) : iteration_limit(iterations), mutate_mode(m_mode){};
-        // ~Researcher();
+        Researcher(int iterations, mutation_type m_mode) : iteration_limit(iterations), mutate_mode(m_mode){
+
+        };
+        ~Researcher();
 
         //Set tests count
         void setExNumber(int number);
@@ -54,6 +60,8 @@ class Researcher{
 
         //Set shift values
         void setIterShift(int shift);
+
+        void setIterations(int size);
 
         void research();
 
@@ -85,7 +93,21 @@ class EA_Researcher : public Researcher{
         */
         EA_Researcher(int iterations, mutation_type m_mode, crossing_type c_mode, 
             selection_type s_mode, int population_size, float cross_p, float mutate_p) : Researcher(iterations, m_mode), 
-            cross_mode(c_mode), select_mode(s_mode), pop_size(population_size), cross_probability(cross_p), mutate_probability(mutate_p){};
+            cross_mode(c_mode), select_mode(s_mode), pop_size(population_size), cross_probability(cross_p), mutate_probability(mutate_p){
+                log = new Logger(output_file, nullptr);
+                //Log to file first line
+                std::vector<std::string> first_line;
+                first_line.push_back("EA Research");
+                first_line.push_back("Population size");
+                first_line.push_back("Generations");
+                first_line.push_back("Cross p");
+                first_line.push_back("Mutate p");
+                first_line.push_back("Tournament size");
+                first_line.push_back("best");
+                first_line.push_back("avg");
+                first_line.push_back("worst");
+                log->LogToFile(first_line);
+            };
 
 
         //Set other values
@@ -117,12 +139,32 @@ class TS_Researcher : public Researcher{
 
     public:
         //Constructor of TS researcher.
-        TS_Researcher(int number, mutation_type m_mode, int neighborhood_size, int tabu_size) : Researcher(number, m_mode), 
-            n_size(neighborhood_size), t_size(tabu_size){};
+        TS_Researcher(int iterations, mutation_type m_mode, int neighborhood_size, int tabu_size) : Researcher(iterations, m_mode), 
+            n_size(neighborhood_size), t_size(tabu_size){
+                log = new Logger(output_file, nullptr);
+                //Log to file first line
+                std::vector<std::string> first_line;
+                first_line.push_back("TS Research");
+                first_line.push_back("Iterations");
+                first_line.push_back("Neighborhood size");
+                first_line.push_back("Tabu size");
+                first_line.push_back("best");
+                first_line.push_back("avg");
+                first_line.push_back("worst");
+                log->LogToFile(first_line);
+            };
+
 
         //Set shift values
         void setNShift(int shift);
         void setTShift(int shift);
+
+        //Set parameters
+        void setNSize(int size);
+        void setTabuSize(int size);
+
+
+        void research();
 
 };
 
@@ -141,12 +183,35 @@ class SA_Researcher : public Researcher{
 
     public:
         //Constructor of SA researcher.
-        SA_Researcher(int number, mutation_type m_mode, int neighborhood_size, int temperature, float temp_multiplier, int temp_step) : Researcher(number, m_mode),
-            n_size(neighborhood_size), temperature(temperature), temp_multiplier(temp_multiplier), temp_step(temp_step){};
+        SA_Researcher(int iterations, mutation_type m_mode, int neighborhood_size, int temperature, float temp_multiplier, int temp_step) : Researcher(iterations, m_mode),
+            n_size(neighborhood_size), temperature(temperature), temp_multiplier(temp_multiplier), temp_step(temp_step){
+                log = new Logger(output_file, nullptr);
+                //Log to file first line
+                std::vector<std::string> first_line;
+                first_line.push_back("SA Research");
+                first_line.push_back("Iterations");
+                first_line.push_back("Neighborhood size");
+                first_line.push_back("Temp");
+                first_line.push_back("Multiplier");
+                first_line.push_back("Step");
+                first_line.push_back("best");
+                first_line.push_back("avg");
+                first_line.push_back("worst");
+                log->LogToFile(first_line);
+            };
 
         //Set shift values
         void setNShift(int shift);
         void setTempShift(float shift);
         void setMultiplierShift(float shift);
         void setStepShift(int shift);
+
+        //Set parameters
+        void setTemp(int value);
+        void setNsize(int size);
+        void setMultiplier(float value);
+        void setStep(int step);
+        
+
+        void research();
 };
