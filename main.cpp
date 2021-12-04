@@ -127,7 +127,7 @@ void eaResearch(){
     selection_type s = selection_type::tournament;
     int population_size = 5000; //3500
     float cross_p = 0.86; //0.9
-    float mutate_p = 0.48; // 0.83
+    float mutate_p = 0.53; // 0.83
     int tournament_size = 8; //208
 
     EA_Researcher ea(iterations, m, c, s, population_size, cross_p, mutate_p);
@@ -145,35 +145,35 @@ void eaResearch(){
 
     // //Research Pop
     //ea.setPopSize(2000);
-    ea.setIterShift(200);
-    ea.setPopShift(-200);
-    ea.setMutateShift(0);
-    ea.setCrossShift(0);
+    // ea.setIterShift(200);
+    // ea.setPopShift(-200);
+    // ea.setMutateShift(0);
+    // ea.setCrossShift(0);
 
-    ea.setSampleCount(10);
-    ea.setTestsCount(20);
-    ea.research();
+    // ea.setSampleCount(10);
+    // ea.setTestsCount(20);
+    // ea.research();
 
     
-    // //Research Cross
-    // ea.setCross(0.7);
+    //Research Cross
+    // ea.setCross(0.0);
     // ea.setIterShift(0);
     // ea.setPopShift(0);
     // ea.setMutateShift(0);
-    // ea.setCrossShift(0.02);
+    // ea.setCrossShift(0.1);
     // ea.setSampleCount(10);
-    // ea.setTestsCount(12);
+    // ea.setTestsCount(10);
     // ea.research();
     
     //Research Mutation
-    // ea.setMutate(0.4);
-    // ea.setIterShift(0);
-    // ea.setPopShift(0);
-    // ea.setMutateShift(0.02);
-    // ea.setCrossShift(0);
-    // ea.setSampleCount(10);
-    // ea.setTestsCount(12);
-    // ea.research();
+    ea.setMutate(0.0);
+    ea.setIterShift(0);
+    ea.setPopShift(0);
+    ea.setMutateShift(0.1);
+    ea.setCrossShift(0);
+    ea.setSampleCount(10);
+    ea.setTestsCount(10);
+    ea.research();
 
     // //Research Tournament Size
     // ea.setIterShift(0);
@@ -306,35 +306,89 @@ void greedyTest(cVRP* prob){
     std::cout << "Score : " <<prob->evalutateSolution(best) << "\n";
 }
 
+void EA_TS_Hybrid_Test(cVRP* prob){
+     std::string number = std::to_string(EXERCISE);
+    std::string output_file = "../datasheets/EvolutionwithTSboost_TestBoostN20_" + number + ".csv";
+    
+    Logger log(output_file, prob);
+
+    //EA parameters
+    int population_size = 100;
+    int generation_limit = 500; //1000
+    float cross_prob = 0.86;
+    float mutate_prob = 0.43; 
+    int tournament_size = 16;
+    //Boosting parameters
+    float n_boost = 0.05; // % of population
+    int boost_step = 50;
+    int boost_iterations = 3000;    //3000
+    int neighborhood_size = 32;
+    //Temp parameters
+    float temperature = 50;
+    int temp_step = 10;
+    float temp_multiplier = 0.953;
+    
+    //Log parameters
+    int step_evolution = 1;
+    int repeat_count = 5;
+
+    EA_TS_Hybrid hybrid_solver(prob, population_size, cross_prob, mutate_prob,neighborhood_size, temperature, temp_step, temp_multiplier, boost_iterations, n_boost, boost_step); 
+    
+    hybrid_solver.setTournamentSize(tournament_size);
+
+    //Evolution algorithm test
+    // log.runEATSTest(&hybrid_solver, generation_limit, step_evolution);
+    // std::cout << "Best path:\n";
+    // Solution* best = hybrid_solver.getBest();
+    // hybrid_solver.printSolution(best);
+    // std::cout << "Score: " << prob->evalutateSolution(best) << "\n";
+    // std::cout << "________________________________________________\n";
+    // prob->evalutateSolution(best);
+
+    log.runEATsLog(population_size, generation_limit, cross_prob, mutate_prob, tournament_size, neighborhood_size, temperature, temp_step, temp_multiplier, repeat_count, boost_iterations, n_boost, boost_step);
+    std::cout << "Done!\n";
+}
+
+void EA_Temp_Hybrid_Test(cVRP* prob){
+    std::string number = std::to_string(EXERCISE);
+    std::string output_file = "../datasheets/Evolution_Temp_IterTest500_" + number + ".csv";
+    
+    Logger log(output_file, prob);
+
+    //EA parameters
+    int population_size = 2000; 
+    int generation_limit = 500;
+    float cross_prob = 0.92;    
+    float mutate_prob = 1;  
+    int tournament_size = 5;    
+    //Temp parameters
+    float temperature = 50000;  
+    int temp_step = 10; 
+    float temp_multiplier = 0.553;   
+    
+    //Log parameters
+    int step_evolution = 1;
+    int repeat_count = 3;
+
+    EA_Temp_Hybrid hybrid_solver(prob, population_size, cross_prob, mutate_prob, temperature, temp_step, temp_multiplier); 
+    hybrid_solver.setTournamentSize(tournament_size);
+
+    // Evolution algorithm test
+    // log.runEATempTest(&hybrid_solver, generation_limit, step_evolution);
+    // std::cout << "Best path:\n";
+    // Solution* best = hybrid_solver.getBest();
+    // hybrid_solver.printSolution(best);
+    // std::cout << "Score: " << prob->evalutateSolution(best) << "\n";
+    // std::cout << "________________________________________________\n";
+    // prob->evalutateSolution(best);
+
+     log.runEATempLog(population_size, generation_limit, cross_prob, mutate_prob, tournament_size, temperature, temp_step, temp_multiplier, repeat_count);
+}
+
 int main(int, char**) {
     //std::getchar();
     //Path to file
-    std::string laptop_problem_paths[8] = {
-        "D:/Dev/Uni-Metaheuristics/problem instances/test-file.vrp",
-        "D:/Dev/Uni-Metaheuristics/problem instances/A-n32-k5.vrp",
-        "D:/Dev/Uni-Metaheuristics/problem instances/A-n37-k6.vrp",
-        "D:/Dev/Uni-Metaheuristics/problem instances/A-n39-k5.vrp",
-        "D:/Dev/Uni-Metaheuristics/problem instances/A-n45-k6.vrp",
-        "D:/Dev/Uni-Metaheuristics/problem instances/A-n48-k7.vrp",
-        "D:/Dev/Uni-Metaheuristics/problem instances/A-n54-k7.vrp",
-        "D:/Dev/Uni-Metaheuristics/problem instances/A-n60-k9.vrp"
-
-    };
-
-
-    std::string pc_problem_paths[8] = {
-        "D:/Dev/Metaheuristic/problem instances/test-file.vrp", //0
-        "D:/Dev/Metaheuristic/problem instances/A-n32-k5.vrp",  //1
-        "D:/Dev/Metaheuristic/problem instances/A-n37-k6.vrp",  //2
-        "D:/Dev/Metaheuristic/problem instances/A-n39-k5.vrp",  //3
-        "D:/Dev/Metaheuristic/problem instances/A-n45-k6.vrp",  //4
-        "D:/Dev/Metaheuristic/problem instances/A-n48-k7.vrp",  //5
-        "D:/Dev/Metaheuristic/problem instances/A-n54-k7.vrp",  //6
-        "D:/Dev/Metaheuristic/problem instances/A-n60-k9.vrp"   //7
-
-    };
-
-        std::string problem_paths[8] = {
+    std::string problem_paths[8] = {
         "../problem instances/test-file.vrp", //0
         "../problem instances/A-n32-k5.vrp",  //1
         "../problem instances/A-n37-k6.vrp",  //2
@@ -343,7 +397,6 @@ int main(int, char**) {
         "../problem instances/A-n48-k7.vrp",  //5
         "../problem instances/A-n54-k7.vrp",  //6
         "../problem instances/A-n60-k9.vrp"   //7
-
     };
     
     std::string file_name = (std::string) problem_paths[EXERCISE];
@@ -365,22 +418,25 @@ int main(int, char**) {
 
     //Exercise One
     //Wynik średni powinien być lepszy od greedy.
-    exerciseOne(prob);
+    // exerciseOne(prob);
 
     //Exercise Two
-    //exerciseTwo(prob);
+    // exerciseTwo(prob);
 
     //Exercise Three
-    //exerciseThree(prob);
+    // exerciseThree(prob);
     
     //Exercise Four
-    //exerciseFour();
-
-    //greedyTest(prob);
-    
     //eaResearch();
     //tsResearch();
     //saResearch();
+
+    //greedyTest(prob);
+
+
+    // EA_TS_Hybrid_Test(prob);
+    // EA_Temp_Hybrid_Test(prob);
+
     
 
     //_________________________________________________________________________________________________

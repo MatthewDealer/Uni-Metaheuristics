@@ -1226,3 +1226,284 @@ float SimulatedAnnealing::getWorstScore(){
 float SimulatedAnnealing::getTemperature(){
     return temperature;
 }
+
+/////////////////////////
+///EA with temp hybrid///
+/////////////////////////
+EA_TS_Hybrid::EA_TS_Hybrid(cVRP* problem, int pop_size, float cross, float mutate, int neighborhood_size, float start_temperature, int step_temp, float multiplier,int boost_iterations, float n_boost, int boost_step):
+Evolution(problem, pop_size, cross, mutate), neighborhood_size(neighborhood_size), temperature(start_temperature), temp_step(step_temp), temp_multiplier(multiplier), boost_iterations(boost_iterations), n_boost(n_boost), boost_step(boost_step){
+    step = 0;
+}
+
+Solution** EA_TS_Hybrid::generateNeighbors(Solution* object){
+    Solution** neighbors = new Solution*[neighborhood_size];
+    for(int i = 0; i < neighborhood_size; i++){
+        neighbors[i] = generateNeighbor(object);
+    }
+    return neighbors;
+}
+Solution* EA_TS_Hybrid::generateNeighbor(Solution* object){
+    Solution* new_sol = clone(object);
+    int dimension = new_sol ->getPathSize();
+    int start = rand() % dimension;
+    int end = rand() % dimension;
+    
+    //Make sure that indexes arent equal
+    while(start == end)
+        end = rand() % dimension;
+
+    if(start>end){
+        int temp = start;
+        start = end;
+        end = temp;
+    }
+
+    for(int i = 0; i + start < end; i++){
+        int temp = new_sol->getValueAt(start+i);
+        new_sol->setValueAt(start+i, new_sol->getValueAt(end-i));
+        new_sol->setValueAt(end-i, temp); 
+             
+    }
+    return new_sol;
+}
+
+
+void EA_TS_Hybrid::boost(){
+    
+    // std::cout << "BOOST!\n";
+    int boost_size = n_boost * population_size;
+    int indexes_array[boost_size];
+
+    for(int i = 0; i < boost_size; i++){
+        indexes_array[i] = rand() % population_size;
+        // std::cout<< indexes_array[i] << " ";
+    }
+    //  std::cout << "CHOSEN!\n";
+    
+    for(int i = 0; i < boost_size; i++){
+        Solution* current_solution = clone(population[indexes_array[i]]);
+        float old_evaluation = evaluation[indexes_array[i]];
+        float current_evaluation = old_evaluation;
+        Solution* best_solution = clone(current_solution);
+        float best_evaluation = current_evaluation;
+
+        Solution** neighbors;
+        // std::cout << "GENERATED NEEDED SOLUTIONS!\n";
+        int t = 0;
+        float local_temp = temperature;
+        
+        for(int j = 0; j < boost_iterations; j++){ 
+            neighbors = generateNeighbors(current_solution);
+            // std::cout << "UPDATE NEIGBORS!\n";
+            int best_neighbor_index = -1; 
+            float neighborhood_eval = -1;
+
+            //Get best neighbor
+            for(int z = 0; z < neighborhood_size; z++){
+                    float l_score = problem->evalutateSolution(neighbors[z]);
+                    if(best_neighbor_index == -1 || neighborhood_eval > l_score){
+                            best_neighbor_index = z;
+                            neighborhood_eval = l_score;
+                    }
+                      
+            }
+            // std::cout << "GET BEST!\n";
+            // std::cout << "index; " << best_neighbor_index << " score : " << neighborhood_eval;
+            // Calculate temp
+            float diff = current_evaluation - neighborhood_eval;
+            float tolerance = exp((diff)/temperature);
+            float choice = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            // std::cout << "CALCULATE P \n";
+            //Move forward to next best place or check temp
+            if(current_evaluation > neighborhood_eval || choice < tolerance){
+                delete current_solution;
+                current_solution = clone(neighbors[best_neighbor_index]);
+                current_evaluation = neighborhood_eval;
+            
+                // std::cout << "UPDATE CURRENT P \n";
+                //Check if best path is found
+                if(neighborhood_eval < best_evaluation){
+                        delete best_solution;
+                        best_solution = clone(neighbors[best_neighbor_index]);
+                        best_evaluation = neighborhood_eval;
+                        // std::cout << "UPDATE BEST P \n";
+                }
+                for(int s = 0; s < neighborhood_size; s++)
+                    delete neighbors[s];
+                delete[] neighbors;
+                
+
+            }
+
+            t++; // t+1
+            if(t>=temp_step){
+                // std::cout<< "T = " << local_temp << "\n";
+                local_temp = local_temp * temp_multiplier;
+                t = 0;
+            }
+        }
+
+        if(best_evaluation < old_evaluation){
+            delete population[indexes_array[i]];
+            population[indexes_array[i]] = best_solution;
+            evaluation[indexes_array[i]] = best_evaluation;
+            best_solution = nullptr;
+        }
+        delete current_solution;
+        delete best_solution;
+        for(int s = 0; s < neighborhood_size; s++)
+            delete neighbors[s];
+        delete[] neighbors;
+    }
+
+}
+void EA_TS_Hybrid::boosted_evolution(int generation_limit){
+    int iteration = 0;
+    while(iteration < generation_limit){
+        //std::cout << "Generation no. " << iteration + 1 << "\n";
+        Solution** new_pop = new Solution*[population_size];  
+        for(int i = 0; i < population_size; i++){
+            Solution* child;
+            int index_one = select();
+            //std::cout << "index one = " << index_one << "\n";
+            int index_two = -1;
+            Solution* parent_one = population[index_one];
+            float cross = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            float mutate = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            
+            if (cross <= crossing_probablity){
+                //std::cout << "CROSS!\n";
+                index_two = select();
+                Solution* parent_two = population[index_two];
+                child = crossover(parent_one, parent_two);
+                parent_two = nullptr;
+
+            }
+            else {
+                child = clone(parent_one);
+            }
+
+            if( mutate <= mutation_probablity){
+                mutation(child);
+            }
+            new_pop[i] = child;
+            child = nullptr;
+            parent_one = nullptr;
+            
+            
+        }
+        
+        
+        //clean memory and old population
+        for( int i = 0; i < population_size; i++){
+            delete population[i];
+            population[i] = new_pop[i];
+            new_pop[i] = nullptr;
+        }
+        
+        delete[] new_pop;
+
+        //Evaluate new population
+        evaluate();
+        
+        //boost
+        step++;
+        if(step >= boost_step){
+            step = 0;
+            boost();
+        }
+
+        iteration++;
+    }
+
+}
+
+/////////////////////////
+///EA with temp hybrid///
+/////////////////////////
+EA_Temp_Hybrid::EA_Temp_Hybrid(cVRP* problem, int pop_size, float cross, float mutate, float start_temperature, int step_temp, float multiplier) : 
+Evolution(problem, pop_size, cross, mutate), temperature(start_temperature),temp_step(step_temp), temp_multiplier(multiplier){step = 0;}
+
+
+// Overwritten main function
+void EA_Temp_Hybrid::hybrid_evolution(int generation_limit){
+    
+    int iteration = 0;
+    
+
+    while(iteration < generation_limit){
+        //std::cout << "Generation no. " << iteration + 1 << "\n";
+        Solution** new_pop = new Solution*[population_size];  
+        float* new_evaluation = new float[population_size];
+
+        for(int i = 0; i < population_size; i++){
+            Solution* child;
+            int index_one = select();
+            //std::cout << "index one = " << index_one << "\n";
+            int index_two = -1;
+            Solution* parent_one = population[index_one];
+            float cross = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+            if (cross <= crossing_probablity){
+                //std::cout << "CROSS!\n";
+                index_two = select();
+                Solution* parent_two = population[index_two];
+                child = crossover(parent_one, parent_two);
+
+            }
+            else {
+                child = clone(parent_one);
+
+            }
+
+            Solution* neighbor = clone(child);
+            mutation(neighbor);
+            float c_evaluation = problem->evalutateSolution(child);
+            float n_evaluation = problem->evalutateSolution(neighbor);
+            // Calculate temp
+            // std::cout << "T = " << temperature << " ";
+            float diff = c_evaluation - n_evaluation;
+            float tolerance = exp((diff)/temperature) * cross;
+            // std::cout <<" dif = " << diff << " P = " << tolerance << " \n";
+            float choice = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            if(c_evaluation > n_evaluation || choice < tolerance ){
+                // std::cout << "Mutate!";
+                delete child;
+                child = neighbor;
+                neighbor = nullptr;
+                c_evaluation = n_evaluation;
+            }
+            else{
+                delete neighbor;
+                neighbor = nullptr;
+            }
+            
+            new_pop[i] = child;
+            new_evaluation[i] = c_evaluation;
+            child = nullptr;
+        }
+        
+        
+        //clean memory and old population
+        for( int i = 0; i < population_size; i++){
+            delete population[i];
+            population[i] = new_pop[i];
+            new_pop[i] = nullptr;
+        }
+        
+        delete[] new_pop;
+
+        //Evaluate new population
+        delete[] evaluation;
+        evaluation = new_evaluation;
+        new_evaluation = nullptr;
+
+        iteration++;
+        step++;
+        // std::cout << "T = " << temperature << "\n";
+        if(step>=temp_step){
+            temperature = temperature * temp_multiplier;
+            step = 0;
+        }
+    }
+}

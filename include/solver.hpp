@@ -57,7 +57,7 @@ class Greedy : public Solver{
 };
 
 class Evolution : public Solver{
-    private:
+    protected:
         float crossing_probablity;
         float mutation_probablity;  
 
@@ -200,4 +200,45 @@ class SimulatedAnnealing : public Solver{
         float getWorstScore();
         float getCurrentScore();
         float getTemperature();
+};
+
+
+//Hybrid for ex 5
+class EA_TS_Hybrid : public Evolution{
+    private:
+        float n_boost;
+        int boost_step;
+        int boost_iterations;
+
+        int neighborhood_size;
+        float temperature;
+        int temp_step;
+        float temp_multiplier;
+        
+        int step;
+    public:
+    EA_TS_Hybrid(cVRP* problem, int pop_size, float cross, float mutate, int neighborhood_size, float start_temperature, int step_temp, float multiplier, int boost_iterations, float n_boost, int boost_step);
+
+    Solution** generateNeighbors(Solution* object);
+    Solution* generateNeighbor(Solution* object);
+
+    void boost();
+    void boosted_evolution(int generation_limit);
+};
+
+//Second Hybrid for ex 5
+class EA_Temp_Hybrid : public Evolution{
+    private:
+        //Anneling part
+        float temperature;
+        int temp_step;
+        float temp_multiplier;
+        int step;
+
+    public:
+        EA_Temp_Hybrid(cVRP* problem, int pop_size, float cross, float mutate, float start_temperature, int step_temp, float multiplier);     
+
+        // main function
+        void hybrid_evolution(int generation_limit);
+
 };

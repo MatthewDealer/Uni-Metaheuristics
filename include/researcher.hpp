@@ -30,7 +30,7 @@ class Researcher{
         std::chrono::steady_clock::time_point end;
         std::chrono::nanoseconds duration;
 
-        std::string output_file = "../datasheets/Evolution_research_popxiter_2.csv";
+        std::string output_file = "../datasheets/TS_research_mutate_wt_1.csv";
         Logger* log;
 
 

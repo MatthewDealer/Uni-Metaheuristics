@@ -17,7 +17,7 @@ void Logger::LogToFile(std::vector<std::string> vector_of_words){
     file << "\n";
 }
 
-void Logger::runTest(Evolution* evolution_solver, int generations_limit,int evolution_step){
+void Logger::runEATest(Evolution* evolution_solver, int generations_limit,int evolution_step){
 
     //evolution_solver->printPop();
     std::cout << "__________________________________________________________________\n";
@@ -94,6 +94,62 @@ void Logger::runAnnelingTest(int generations_limit, int step, int n_size, float 
     std::cout << "Score: " << sa.getBestEvaluation() << "\n";
 }
 
+void Logger::runEATSTest(EA_TS_Hybrid* evolution_solver, int generations_limit,int evolution_step){
+    //evolution_solver->printPop();
+    std::cout << "__________________________________________________________________\n";
+    //Test evolution 
+    //file << "iteration,best,avg,worst,\n";
+    int iterations = generations_limit/evolution_step;
+    for(int i = 0; i <=iterations; i++){
+        if(i == 0){
+            float best = evolution_solver->getBestScore();
+            float avg = evolution_solver->getAvgScore();
+            float worst = evolution_solver->getWorstScore();
+            std::cout << best << " - " << avg << " - " << worst <<"\n";
+            file << i << "," << best << "," << avg << "," << worst <<",\n";
+        }
+        else{
+            std::cout << "Iteration no. " << i <<"\n";
+            evolution_solver->boosted_evolution(evolution_step);
+            //evolution_solver->printPop();
+            float best = evolution_solver->getBestScore();
+            float avg = evolution_solver->getAvgScore();
+            float worst = evolution_solver->getWorstScore();
+            std::cout << best << " - " << avg << " - " << worst <<"\n";
+            file << i << "," << best << "," << avg << "," << worst <<",\n";
+        }
+    }
+    std::cout << "Done!\n";
+}
+
+void Logger::runEATempTest(EA_Temp_Hybrid* evolution_solver, int generations_limit,int evolution_step){
+
+    //evolution_solver->printPop();
+    std::cout << "__________________________________________________________________\n";
+    //Test evolution 
+    //file << "iteration,best,avg,worst,\n";
+    int iterations = generations_limit/evolution_step;
+    for(int i = 0; i <=iterations; i++){
+        if(i == 0){
+            float best = evolution_solver->getBestScore();
+            float avg = evolution_solver->getAvgScore();
+            float worst = evolution_solver->getWorstScore();
+            std::cout << best << " - " << avg << " - " << worst <<"\n";
+            file << i << "," << best << "," << avg << "," << worst <<",\n";
+        }
+        else{
+            std::cout << "Iteration no. " << i <<"\n";
+            evolution_solver->hybrid_evolution(evolution_step);
+            //evolution_solver->printPop();
+            float best = evolution_solver->getBestScore();
+            float avg = evolution_solver->getAvgScore();
+            float worst = evolution_solver->getWorstScore();
+            std::cout << best << " - " << avg << " - " << worst <<"\n";
+            file << i << "," << best << "," << avg << "," << worst <<",\n";
+        }
+    }
+    std::cout << "Done!\n";
+}
 
 //Compare evoltuion, random and greedy
 void Logger::runCompareLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_size, int repeat_count){
@@ -271,4 +327,72 @@ void Logger::runAnnelingLog(int generations_limit,int neighborhood_size,int star
     file << best << "," << avg << "," << worst << "," << std <<",\n";
 
 
+}
+
+void Logger::runEATempLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_sizem, float temp, int step, float multiplier, int repeat_count){
+    float scores[repeat_count];
+
+    for(int i = 0; i < repeat_count; i++){
+        EA_Temp_Hybrid solver(problem, pop_size, cross_prob, mutate_prob, temp, step, multiplier);
+        solver.setTournamentSize(tournament_sizem);
+        std::cout << "EA Temp no. " << i + 1 << "\n";
+        solver.hybrid_evolution(generations_limit);
+        float best = solver.getBestScore();
+        scores[i] = best;
+    }
+    float best = std::numeric_limits<float>::max(); float avg = 0; float worst = -1;
+
+    for(int i = 0; i < repeat_count; i++){
+        avg += scores[i];
+        if(best > scores[i])
+            best = scores[i];
+        
+        if(worst < scores[i])
+            worst = scores[i];
+    }
+    avg = avg / repeat_count;
+
+    float std = 0;
+
+    for(int i = 0; i < repeat_count; i++){
+        std += pow(avg - scores[i], 2);
+    }
+    std = sqrt(std/repeat_count);
+
+    file << ", EA with temp , ,\n";
+    file << best << "," << avg << "," << worst << "," << std <<",\n";
+}
+
+void Logger::runEATsLog(int pop_size, int generations_limit, float cross_prob, float mutate_prob,  int tournament_sizem, int n_size, float temp, int step, float multiplier, int repeat_count, int boost_iters, float n_boost, int boost_step){
+    float scores[repeat_count];
+
+    for(int i = 0; i < repeat_count; i++){
+        EA_TS_Hybrid solver(problem, pop_size, cross_prob, mutate_prob, n_size, temp, step, multiplier, boost_iters, n_boost, boost_step);
+        solver.setTournamentSize(tournament_sizem);
+        std::cout << "EA TS no. " << i + 1 << "\n";
+        solver.boosted_evolution(generations_limit);
+        float best = solver.getBestScore();
+        scores[i] = best;
+    }
+    float best = std::numeric_limits<float>::max(); float avg = 0; float worst = -1;
+
+    for(int i = 0; i < repeat_count; i++){
+        avg += scores[i];
+        if(best > scores[i])
+            best = scores[i];
+        
+        if(worst < scores[i])
+            worst = scores[i];
+    }
+    avg = avg / repeat_count;
+
+    float std = 0;
+
+    for(int i = 0; i < repeat_count; i++){
+        std += pow(avg - scores[i], 2);
+    }
+    std = sqrt(std/repeat_count);
+
+    file << ", EA/TS , ,\n";
+    file << best << "," << avg << "," << worst << "," << std <<",\n";
 }
